@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">PingMe</string>
+    <string name="enter_mobile_number">mobile</string>
+    <string name="password_hint">password</string>
+    <string name="register">Register</string>
+    <string name="login">LogIn</string>
+    <string name="name_hint">Name</string>
+    <string name="address_hint">Address</string>
+    <string name="email_hint">Email</string>
+    <string name="alternate_phone_hint">Alternate Mobile</string>
+    <string name="landline_hint">Landline</string>
+    <string name="field1_hint">Alphanumeric Field</string>
+    <string name="image_upload">Upload Image</string>
+    <string name="save">Save</string>
+    <string name="std_code">STD Code</string>
+    <string name="image_dimension">170 * 170 pixels</string>
+    <string name="log_in_choice">Or LogIn</string>
+    <string name="register_choice">Or Register</string>
+    <string name="loading">Loading&#8230;</string>
+    <string name="first_list">Add your first list</string>
+    <string name="new_list">New list&#8230;</string>
+    <string name="add">Add</string>
+    <string name="cancel">Cancel</string>
+    <string name="ping_history">Ping History</string>
+    <string name="profile">Profile</string>
+</resources>
