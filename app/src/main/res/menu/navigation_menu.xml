@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:id="@+id/profile"
-        android:title="@string/profile"/>
-    <item android:id="@+id/ping_history"
-        android:title="@string/ping_history"/>
+    <item android:id="@+id/notification_history"
+        android:title="@string/notification_history"/>
+    <item android:id="@+id/all_list"
+        android:title="@string/all_lists"/>
+    <item android:id="@+id/logout"
+        android:title="@string/log_out"/>
 
 </menu>

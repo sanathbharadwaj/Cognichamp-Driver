@@ -1,21 +1,29 @@
 package com.anekvurna.pingme;
 
+import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.FirebaseTooManyRequestsException;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
-import com.parse.LogInCallback;
-import com.parse.ParseException;
-import com.parse.ParseUser;
-import com.parse.SignUpCallback;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.concurrent.TimeUnit;
 
@@ -24,6 +32,7 @@ import static com.anekvurna.pingme.SanathUtilities.loadActivityAndFinish;
 public class LogInActivity extends AppCompatActivity {
 
     private String phoneNumber;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,26 +43,9 @@ public class LogInActivity extends AppCompatActivity {
 
     public void onLogIn(View view)
     {
-        phoneNumber = getEditText(R.id.mobile_number).getText().toString();
+        phoneNumber = "+91" +getEditText(R.id.mobile_number).getText().toString();
         showToast("Automatically detecting SMS sent to your mobile");
         phoneAuthenticate();
-    }
-
-    void logInUser()
-    {
-        String password = getEditText(R.id.password).getText().toString();
-        ParseUser.logInInBackground(phoneNumber, password, new LogInCallback() {
-            @Override
-            public void done(ParseUser user, ParseException e) {
-                if(user == null || e != null)
-                {
-                    showToast(e.getMessage());
-                    return;
-                }
-                showToast("LogIn successful");
-                loadToProfileActivity();
-            }
-        });
     }
 
     void phoneAuthenticate()
@@ -64,7 +56,7 @@ public class LogInActivity extends AppCompatActivity {
             @Override
             public void onVerificationCompleted(PhoneAuthCredential credential) {
                 showToast("Successfully verified mobile number");
-                logInUser();
+                signInWithPhoneAuthCredential(credential);
             }
 
             @Override
@@ -95,6 +87,77 @@ public class LogInActivity extends AppCompatActivity {
     void showToast(String message)
     {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
+        showToast("Logging in user...");
+        mAuth = FirebaseAuth.getInstance();
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            FirebaseUser user = task.getResult().getUser();
+                            checkForPassword(user);
+
+                        } else {
+                            if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
+                                showToast("Sign in failed. Invalid credential");
+                            }
+                        }
+                    }
+                });
+    }
+
+    private void loginUser(FirebaseUser user) {
+        final Context context = this;
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance()
+                .getReference("users");
+        String phoneNumber = getEditText(R.id.mobile_number).getText().toString();
+        String password = getEditText(R.id.login_password).getText().toString();
+        User user1 = new User(phoneNumber, password);
+        databaseReference.child(user.getUid()).setValue(user1, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                showToast("Login successful");
+                loadActivityAndFinish(context, ViewTabbedActivity.class);
+            }
+        });
+    }
+
+    void checkForPassword(final FirebaseUser user)
+    {
+        final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users").child(user.getUid());
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                boolean flag = false;
+                if(dataSnapshot.exists())
+                {
+                    User user1= dataSnapshot.getValue(User.class);
+                    if(user1!=null)
+                    if(user1.getPassword().equals(getEditText(R.id.login_password).getText().toString()))
+                    {
+                        flag = true;
+                    }
+
+                }
+                if(flag)
+                {
+                    loginUser(user);
+                }
+                else
+                {
+                    showToast("Error invalid username and password");
+                    FirebaseAuth.getInstance().signOut();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
 

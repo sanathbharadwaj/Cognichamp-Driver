@@ -23,4 +23,82 @@
     <string name="cancel">Cancel</string>
     <string name="ping_history">Ping History</string>
     <string name="profile">Profile</string>
+    <string name="vehicle_details">Vehicle Details</string>
+    <string name="driving_licence">Driving Licence Number</string>
+    <string name="voter_id">Voter ID Number</string>
+    <string name="personal_details">Personal Details</string>
+    <string name="driver_image">Select Driver Image</string>
+    <string name="no_image_chosen">No Image Chosen</string>
+    <string name="car_image_front">Select Car Front Photograph</string>
+    <string name="car_image_back">Select Car Back Photograph</string>
+    <string name="car_number_plate">Select Number Plate Image</string>
+    <string name="driver_voter_image">Select Voter ID Image</string>
+    <string name="driver_licence_image">Select Driving Licence Image</string>
+    <string name="uploading">Uploading&#8230;</string>
+    <string name="uploaded">Uploaded</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
+
+    <string-array name="india_states">
+        <item>Select State</item>
+        <item>Andaman and Nicobar Islands</item>
+        <item>Andhra Pradesh</item>
+        <item>Arunachal Pradesh</item>
+        <item>Assam</item>
+        <item>Bihar</item>
+        <item>Chandigarh</item>
+        <item>Chhattisgarh</item>
+        <item>Dadra and Nagar Haveli</item>
+        <item>Daman and Diu</item>
+        <item>Delhi</item>
+        <item>Goa</item>
+        <item>Gujarat</item>
+        <item>Haryana</item>
+        <item>Himachal Pradesh</item>
+        <item>Jammu and Kashmir</item>
+        <item>Jharkhand</item>
+        <item>Karnataka</item>
+        <item>Kerala</item>
+        <item>Lakshadweep</item>
+        <item>Madhya Pradesh</item>
+        <item>Maharashtra</item>
+        <item>Manipur</item>
+        <item>Meghalaya</item>
+        <item>Mizoram</item>
+        <item>Nagaland</item>
+        <item>Orissa</item>
+        <item>Pondicherry</item>
+        <item>Punjab</item>
+        <item>Rajasthan</item>
+        <item>Sikkim</item>
+        <item>Tamil Nadu</item>
+        <item>Telangana</item>
+        <item>Tripura</item>
+        <item>Uttaranchal</item>
+        <item>Uttar Pradesh</item>
+        <item>West Bengal</item>
+    </string-array>
+    <string name="title_activity_view_tabbed_profile">ViewTabbedProfileActivity</string>
+    <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="title_activity_view_tabbed">ViewTabbedActivity</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+    <string name="tab_text_3">Tab 3</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="notification_history">Notification history</string>
+    <string name="log_out">Log out</string>
+    <string name="basic">basic</string>
+    <string name="other">other</string>
+    <string name="vehicle">vehicle</string>
+    <string name="all_lists">All Lists</string>
+    <string name="is_editing">isEditing</string>
+    <string name="add_user">Add User</string>
+    <string name="start_trip">Start Trip</string>
+    <string name="only_editing">onlyEditing</string>
+    <string name="list_id">listId</string>
+    <string name="list_name">listName</string>
+    <string name="end_trip">End Trip</string>
 </resources>

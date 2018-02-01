@@ -19,13 +19,14 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.parse.ParseFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -33,59 +34,55 @@ import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileCarActivity extends AppCompatActivity {
 
     Context context;
     static final int PICK_IMAGE = 2;
-    byte[] byteArray;
-    ParseFile file;
     private FirebaseAuth auth;
     private FirebaseUser currentUser;
     private DatabaseReference databaseReference;
     final int PIC_CROP = 1;
     final int DESIRED_WIDTH = 170, DESIRED_HEIGHT = 170;
     private int buttonId;
-    Bitmap driverImage, driverLicence, driverVoterId, carFront, carBack, carNumberPlate;
+    Bitmap carFront, carBack, carNumberPlate;
     FirebaseStorage storage = FirebaseStorage.getInstance();
     StorageReference storageRef = storage.getReference();
     private int totalImagesUploaded;
+    boolean uploadBack = true, uploadFront = true, uploadNumberPLate = true, isPreviousProfile = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile);
+        setContentView(R.layout.activity_profile_car);
         context = this;
-        SharedPreferences prefs = getSharedPreferences("com.anekvurna.pingme", MODE_PRIVATE);
-        if(prefs.getBoolean("isFilled", false))
-        {
-            loadActivityAndFinish(this, AllListsActivity.class);
-        }
-
         auth = FirebaseAuth.getInstance();
         currentUser = auth.getCurrentUser();
-        databaseReference = FirebaseDatabase.getInstance().getReference("driverProfiles").child(currentUser.getUid());
+        databaseReference = FirebaseDatabase.getInstance().getReference("driverProfiles").child(currentUser.getUid()).child("vehicle");
+        checkForPreviousProfile();
     }
 
-    public void onSave(View view)
+    public void onSaveCar(View view)
     {
         totalImagesUploaded = 0;
         if(!isValid())
         {
             return;
         }
-        uploadImage(R.id.choose_driver_image, driverImage, "driverImage");
-        uploadImage(R.id.choose_voterid, driverVoterId, "driverVoterId");
-        uploadImage(R.id.choose_driving_licence, driverLicence, "driverLicence");
-        uploadImage(R.id.choose_front_image, carFront, "frontImage");
-        uploadImage(R.id.choose_back_image, carBack, "backImage");
-        uploadImage(R.id.choose_number_plate, carNumberPlate, "numberPlate");
+        if(uploadFront)
+        uploadImage(R.id.choose_front_image, carFront, "frontImage.jpg");
+        if(uploadBack)
+        uploadImage(R.id.choose_back_image, carBack, "backImage.jpg");
+        if(uploadNumberPLate)
+        uploadImage(R.id.choose_number_plate, carNumberPlate, "numberPlate.jpg");
+        if(numberOfUploads()==0)
+            register();
     }
 
     private void uploadImage(final int textId, Bitmap imageBitmap, String name) {
         setUploadingText(textId);
         byte[] data = fromBitmapToByteArray(imageBitmap);
-        storageRef = FirebaseStorage.getInstance().getReference().child("profiles").child(currentUser.getUid())
-        .child(name);
+        storageRef = FirebaseStorage.getInstance().getReference().child("driverProfiles").child(currentUser.getUid())
+                .child(name);
         UploadTask uploadTask = storageRef.putBytes(data);
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
@@ -99,67 +96,65 @@ public class ProfileActivity extends AppCompatActivity {
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 setUploadedText(textId);
                 totalImagesUploaded++;
-                if(totalImagesUploaded == 6)
+                if(totalImagesUploaded == numberOfUploads())
                     register();
             }
         });
+    }
+
+    private void checkForPreviousProfile() {
+        DatabaseReference checkRef = FirebaseDatabase.getInstance().getReference("driverProfiles").child(currentUser.getUid());
+        checkRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.hasChild("vehicle"))
+                {
+                    isPreviousProfile = true;
+                    populateData(dataSnapshot.child("vehicle").getValue(CarProfile.class));
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+    }
+
+    private void populateData(CarProfile carProfile) {
+        getEditText(R.id.profile_vehicle_name).setText(carProfile.getVehicleName());
+        getEditText(R.id.profile_vehicle_number).setText(carProfile.getVehicleNumber());
+        uploadBack = false; uploadFront = false; uploadNumberPLate = false;
+
+    }
+
+    int numberOfUploads()
+    {
+        int count = 0;
+        if(uploadBack) count++;
+        if(uploadFront)count++;
+        if(uploadNumberPLate)count++;
+        return count;
     }
 
 
 
     boolean isValid()
     {
-        final int MOBILE_LIMIT = 10;
         boolean valid = true;
-        if(getEditText(R.id.profile_name).getText().toString().equals(""))
-        {
-            showToast("Please enter valid name");
-            valid = false;
-        }
-        if(getEditText(R.id.profile_address_line1).getText().toString().equals("") )
-        {
-            showToast("Please enter valid address");
-            valid = false;
-        }
-        String email = getEditText(R.id.profile_email).getText().toString();
-        if(email.equals("") || !emailValidator(email))
-        {
-            showToast("Please enter valid email");
-            valid = false;
-        }
-        String alternateMobile = getEditText(R.id.profile_alternate_mobile).getText().toString();
-        if(alternateMobile.equals("") || alternateMobile.length() != MOBILE_LIMIT )
-        {
-            showToast("Please enter valid alternate mobile");
-            valid = false;
-        }
-        String stdCode, landline;
-        stdCode = getEditText(R.id.profile_std_code).getText().toString();
-        landline = getEditText(R.id.profile_landline).getText().toString();
-        if(stdCode.equals("") || landline.equals("") || stdCode.length() + landline.length() != MOBILE_LIMIT)
-        {
-            showToast("Please enter valid landline");
-            valid = false;
-        }
+
         if(getEditText(R.id.profile_vehicle_number).getText().toString().equals(""))
         {
             showToast("Please enter valid vehicle number");
             valid = false;
         }
 
-        if(getEditText(R.id.profile_number_voter_id).getText().toString().equals(""))
+        if(getEditText(R.id.profile_vehicle_name).getText().toString().equals(""))
         {
-            showToast("Please enter valid voter id");
-            valid = false;
-        }
-        if(getEditText(R.id.profile_number_driving_licence).getText().toString().equals(""))
-        {
-            showToast("Please enter valid driving licence number");
+            showToast("Please enter valid car name");
             valid = false;
         }
 
-        if(driverImage == null || driverLicence == null || driverVoterId == null || carFront == null ||
-         carBack == null || carNumberPlate == null)
+        if((carFront == null || carBack == null || carNumberPlate == null) && !isPreviousProfile)
         {
             showToast("Please choose all the images");
             valid = false;
@@ -168,32 +163,13 @@ public class ProfileActivity extends AppCompatActivity {
         return valid;
     }
 
-    public boolean emailValidator(String email)
-    {
-        Pattern pattern;
-        Matcher matcher;
-        final String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
-        pattern = Pattern.compile(EMAIL_PATTERN);
-        matcher = pattern.matcher(email);
-        return matcher.matches();
-    }
-
     void register() {
         showToast("Saving profile");
-        Profile profile = new Profile();
-        profile.setName(getEditText(R.id.profile_name).getText().toString());
-        profile.setAddress(getEditText(R.id.profile_address_line1).getText().toString());
-        profile.setMobile(currentUser.getPhoneNumber());
-        profile.setEmail(getEditText(R.id.profile_email).getText().toString());
-        profile.setAlternateMobile(getEditText(R.id.profile_alternate_mobile).getText().toString());
-        profile.setLandline(getEditText(R.id.profile_std_code).getText().toString() +
-                getEditText(R.id.profile_landline).getText().toString());
-        profile.setUserId(currentUser.getUid());
-        profile.setVehicleNumber(getEditText(R.id.profile_vehicle_number).getText().toString());
-        profile.setVoterId(getEditText(R.id.profile_number_voter_id).getText().toString());
-        profile.setDrivingLicence(getEditText(R.id.profile_number_driving_licence).getText().toString());
+        String vehicleNumber = getEditText(R.id.profile_vehicle_number).getText().toString(),
+        vehicleName= getEditText(R.id.profile_vehicle_name).getText().toString();
+        CarProfile carProfile = new CarProfile(vehicleName,vehicleNumber);
 
-        databaseReference.setValue(profile, new DatabaseReference.CompletionListener() {
+        databaseReference.setValue(carProfile, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 if(databaseError!=null){
@@ -202,9 +178,15 @@ public class ProfileActivity extends AppCompatActivity {
                 }
                 showToast("Save successful!");
                 SharedPreferences.Editor editor = getSharedPreferences("com.anekvurna.pingme", MODE_PRIVATE).edit();
-                editor.putBoolean("isFilled", true);
-                editor.apply();
-                loadActivityAndFinish(context, AllListsActivity.class);
+                Intent intent = getIntent();
+                if(!intent.getBooleanExtra(getString(R.string.is_editing), false)) {
+                    editor.putInt("profileStatus", 3);
+                    editor.apply();
+                    loadActivityAndFinish(context, ViewTabbedActivity.class);
+                }
+                else
+                    finish();
+
 
             }
         });
@@ -230,21 +212,6 @@ public class ProfileActivity extends AppCompatActivity {
         if (requestCode == PICK_IMAGE && resultCode == RESULT_OK && data != null) {
 
             Uri pickedImage = data.getData();
-               /* assert pickedImage != null;
-                InputStream inputStream = getContentResolver().openInputStream(pickedImage);
-                byteArray = getBytes(inputStream);
-                Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray,0, byteArray.length);
-                int width = bitmap.getWidth(), height = bitmap.getHeight();
-                if(width < 170 || height < 170)
-                {
-                    showToast("Please choose an image with minimum size 170*170");
-                    byteArray = null;
-                    return;
-                }
-                Bitmap trimmedImage = Bitmap.createBitmap(bitmap, (width-1)/2, (height-1)/2, 170, 170);
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                trimmedImage.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                byteArray = stream.toByteArray(); */
             startCropIntent(pickedImage);
             return;
         }
@@ -266,12 +233,9 @@ public class ProfileActivity extends AppCompatActivity {
     private void assignBitmap(Bitmap resized) {
         switch (buttonId)
         {
-            case R.id.profile_driver_pic : driverImage = resized;setNullText(R.id.choose_driver_image); break;
-            case R.id.profile_driver_voter_id : driverVoterId = resized;setNullText(R.id.choose_voterid);break;
-            case R.id.profile_driver_licence : driverLicence = resized;setNullText(R.id.choose_driving_licence);break;
-            case R.id.profile_car_front : carFront = resized;setNullText(R.id.choose_front_image);break;
-            case R.id.profile_car_back : carBack = resized;setNullText(R.id.choose_back_image);break;
-            case R.id.profile_car_plate : carNumberPlate = resized;setNullText(R.id.choose_number_plate);break;
+            case R.id.profile_car_front : carFront = resized;setNullText(R.id.choose_front_image);uploadFront = true;break;
+            case R.id.profile_car_back : carBack = resized;setNullText(R.id.choose_back_image);uploadBack = true;break;
+            case R.id.profile_car_plate : carNumberPlate = resized;setNullText(R.id.choose_number_plate);uploadNumberPLate = true;break;
             default: showToast("Image fetching failed try again"); break;
         }
     }
@@ -315,18 +279,6 @@ public class ProfileActivity extends AppCompatActivity {
             String errorMessage = "Whoops - your device doesn't support the crop action!";
             showToast(errorMessage);
         }
-    }
-
-    public byte[] getBytes(InputStream inputStream) throws IOException {
-        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
-        int bufferSize = 1024;
-        byte[] buffer = new byte[bufferSize];
-
-        int len = 0;
-        while ((len = inputStream.read(buffer)) != -1) {
-            byteBuffer.write(buffer, 0, len);
-        }
-        return byteBuffer.toByteArray();
     }
 
     TextView getTextView(int id)

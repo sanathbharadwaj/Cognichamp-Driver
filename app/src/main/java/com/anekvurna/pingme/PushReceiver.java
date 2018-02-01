@@ -10,6 +10,10 @@ import android.net.Uri;
 import android.os.Build;
 
 import com.anekvurna.pingme.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParsePushBroadcastReceiver;
@@ -29,7 +33,7 @@ import static android.content.Context.NOTIFICATION_SERVICE;
  * Created by Admin on 1/7/2018.
  */
 
-public class PushReceive extends ParsePushBroadcastReceiver {
+public class PushReceiver extends ParsePushBroadcastReceiver {
     private static int notificationId = 0;
 
 
@@ -42,14 +46,14 @@ public class PushReceive extends ParsePushBroadcastReceiver {
             JSONObject json = new JSONObject(intent.getExtras().getString("com.parse.Data"));
             final String title = json.getString("title");
             final String sender = json.getString("alert");
-            ParseObject object = new ParseObject("NotificationThree");
+            //ParseObject object = new ParseObject("NotificationThree");
            // object.put("sender", sender);
            // object.put("receiver", ParseUser.getCurrentUser().getString("nameOfUser"));
-            String receiver = ParseUser.getCurrentUser().getString("nameOfUser");
+            //String receiver = ParseUser.getCurrentUser().getString("nameOfUser");
             Date date = new Date();
             SimpleDateFormat format = new SimpleDateFormat("hh:mm:ss 'on' MM/dd/yyyy", Locale.getDefault());
-            final String message = sender + " messaged " + receiver + " at " + format.format(date);
-            object.put("message",message);
+            final String message = sender + " messaged you at " + format.format(date);
+            /*object.put("message",message);
             object.put("date", date);
             object.pinInBackground(new SaveCallback() {
                 @Override
@@ -57,13 +61,26 @@ public class PushReceive extends ParsePushBroadcastReceiver {
                     context.sendBroadcast(new Intent("NEW"));
                     notifyUser(title, message);
                 }
-            });
+            });*/
+            notifyUser(title, message);
+            addToMessageHistory(message);
+
 
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
+    }
+
+    public void addToMessageHistory(String message)
+    {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if(currentUser==null) return;
+        DatabaseReference messageReference = FirebaseDatabase.getInstance().getReference("messages").child(currentUser.getUid());
+        String id = messageReference.push().getKey();
+        messageReference.child(id).setValue(message);
     }
 
     void notifyUser(String title, String alert)

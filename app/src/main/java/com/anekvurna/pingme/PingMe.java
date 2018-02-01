@@ -6,16 +6,21 @@ package com.anekvurna.pingme;
  */
 
 import android.app.Application;
+
+import com.google.firebase.database.FirebaseDatabase;
 import com.parse.Parse;
 import com.parse.ParseACL;
 import com.parse.ParseInstallation;
 import com.parse.ParsePush;
+import com.parse.ParseUser;
 
 
 public class PingMe extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         // Enable Local Datastore.
         Parse.enableLocalDatastore(this);
 
@@ -28,8 +33,9 @@ public class PingMe extends Application {
         );
 
         ParsePush.subscribeInBackground("");
+
         ParseInstallation.getCurrentInstallation().saveInBackground();
-        //ParseUser.enableAutomaticUser();
+        ParseUser.enableAutomaticUser();
 
         ParseACL defaultACL = new ParseACL();
         defaultACL.setPublicReadAccess(true);
