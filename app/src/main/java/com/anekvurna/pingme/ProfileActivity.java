@@ -6,14 +6,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import static com.anekvurna.pingme.SanathUtilities.*;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -25,7 +24,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.parse.ParseFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -33,12 +31,14 @@ import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.anekvurna.pingme.SanathUtilities.fromBitmapToByteArray;
+import static com.anekvurna.pingme.SanathUtilities.loadActivityAndFinish;
+
 public class ProfileActivity extends AppCompatActivity {
 
     Context context;
     static final int PICK_IMAGE = 2;
     byte[] byteArray;
-    ParseFile file;
     private FirebaseAuth auth;
     private FirebaseUser currentUser;
     private DatabaseReference databaseReference;
@@ -58,7 +58,7 @@ public class ProfileActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("com.anekvurna.pingme", MODE_PRIVATE);
         if(prefs.getBoolean("isFilled", false))
         {
-            loadActivityAndFinish(this, AllListsActivity.class);
+            loadActivityAndFinish(this, TripListActivity.class);
         }
 
         auth = FirebaseAuth.getInstance();
@@ -204,7 +204,7 @@ public class ProfileActivity extends AppCompatActivity {
                 SharedPreferences.Editor editor = getSharedPreferences("com.anekvurna.pingme", MODE_PRIVATE).edit();
                 editor.putBoolean("isFilled", true);
                 editor.apply();
-                loadActivityAndFinish(context, AllListsActivity.class);
+                loadActivityAndFinish(context, TripListActivity.class);
 
             }
         });

@@ -2,10 +2,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item android:id="@+id/notification_history"
-        android:title="@string/notification_history"/>
+        android:title="@string/notification_history"
+        android:icon="@drawable/ic_notifications_black_24dp"/>
     <item android:id="@+id/all_list"
-        android:title="@string/all_lists"/>
+        android:title="@string/all_lists"
+        android:icon="@drawable/ic_list_black_24dp" />
+    <!--<item android:id="@+id/reset_password"
+        android:title="@string/reset_password"
+        android:icon="@drawable/ic_reset_black_24dp"/>-->
     <item android:id="@+id/logout"
-        android:title="@string/log_out"/>
-
+        android:title="@string/log_out"
+        android:icon="@drawable/ic_logout_black_24dp"/>
 </menu>

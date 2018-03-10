@@ -1,17 +1,23 @@
 package com.anekvurna.pingme;
 
+import android.*;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -29,12 +35,13 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.parse.ParseFile;
 
 import java.io.File;
 
 import static com.anekvurna.pingme.SanathUtilities.fromBitmapToByteArray;
+import static com.anekvurna.pingme.SanathUtilities.loadActivity;
 import static com.anekvurna.pingme.SanathUtilities.loadActivityAndFinish;
+import static com.anekvurna.pingme.SanathUtilities.setProgressBar;
 
 public class ProfileOfficialActivity extends AppCompatActivity {
 
@@ -48,23 +55,33 @@ public class ProfileOfficialActivity extends AppCompatActivity {
     final int PIC_CROP = 1;
     final int DESIRED_WIDTH = 170, DESIRED_HEIGHT = 170;
     private int buttonId;
-    Bitmap driverImage, driverLicence, driverVoterId;
+    Bitmap driverLicence, licenceBack, voterBack, driverVoterId;
     FirebaseStorage storage = FirebaseStorage.getInstance();
     StorageReference storageRef = storage.getReference();
     private int totalImagesUploaded;
-    boolean uDriverImage = true, uVoterId = true, uLicence = true, isPreviousProfile = false;
+    boolean uVoterId = true, uLicence = true, uBackVoterId = true, uBackLicence = false, isPreviousProfile = false;
     private Uri uri;
+    EditText voterId, licence;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_official_profile);
+        testingFunction();
 
         auth = FirebaseAuth.getInstance();
         currentUser = auth.getCurrentUser();
         databaseReference = FirebaseDatabase.getInstance().getReference("driverProfiles").child(currentUser.getUid()).child("official");
         context = this;
         checkForPreviousProfile();
+        voterId = getEditText(R.id.profile_number_voter_id);
+        licence = getEditText(R.id.profile_number_driving_licence);
+        showEditTextsAsMandatory(voterId, licence);
+    }
+
+    private void testingFunction() {
+        TextView test = getTextView(R.id.choose_voterid);
+
     }
 
 
@@ -75,12 +92,14 @@ public class ProfileOfficialActivity extends AppCompatActivity {
         {
             return;
         }
-        if(uDriverImage)
-        uploadImage(R.id.choose_driver_image, driverImage, "driverImage.jpg");
         if(uVoterId)
         uploadImage(R.id.choose_voterid, driverVoterId, "driverVoterId.jpg");
+        if(uBackVoterId)
+            uploadImage(R.id.choose_voter_back, voterBack, getString(R.string.back_voter_filename));
         if(uLicence)
-        uploadImage(R.id.choose_driving_licence, driverLicence, "driverLicence.jpg");
+            uploadImage(R.id.choose_driving_licence, driverLicence, "driverLicence.jpg");
+        if(uBackLicence)
+            uploadImage(R.id.choose_licence_back, licenceBack, getString(R.string.back_licence_filename));
         if(numberOfUploads() == 0)
             register();
     }
@@ -101,7 +120,7 @@ public class ProfileOfficialActivity extends AppCompatActivity {
             valid = false;
         }
 
-        if((driverImage == null || driverLicence == null || driverVoterId == null) && !isPreviousProfile)
+        if(( driverLicence == null || driverVoterId == null || voterBack == null) && !isPreviousProfile)
         {
             showToast("Please choose all the images");
             valid = false;
@@ -127,7 +146,7 @@ public class ProfileOfficialActivity extends AppCompatActivity {
 
         // setup the alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Choose an animal");
+        builder.setTitle("Choose action");
 
         // add a list
         String[] animals = {"Gallery", "Camera"};
@@ -149,6 +168,9 @@ public class ProfileOfficialActivity extends AppCompatActivity {
 
     public void clickImageFromCamera() {
 
+        if(!isEnabledRuntimePermission())
+            return;
+
         Intent camIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
 
         File file = new File(Environment.getExternalStorageDirectory(),
@@ -163,6 +185,23 @@ public class ProfileOfficialActivity extends AppCompatActivity {
 
     }
 
+    boolean isEnabledRuntimePermission()
+    {
+        if(Build.VERSION.SDK_INT >= 23) {
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)
+                    != PackageManager.PERMISSION_GRANTED) {
+                // Permission is not granted
+                ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.CAMERA, android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        2);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -173,14 +212,15 @@ public class ProfileOfficialActivity extends AppCompatActivity {
             return;
         }
         //TODO: Remove asserts
-        if (requestCode == PIC_CROP) {
+        if (requestCode == PIC_CROP && resultCode == RESULT_OK) {
             if (data != null) {
                 // get the returned data
                 Bundle extras = data.getExtras();
                 // get the cropped bitmap
-                assert extras != null;
+                if(extras == null) return;
                 Bitmap selectedBitmap = extras.getParcelable("data");
-                assert selectedBitmap != null;
+                if(selectedBitmap == null)
+                    return;
                 Bitmap resized = Bitmap.createScaledBitmap(selectedBitmap, DESIRED_WIDTH, DESIRED_HEIGHT, true);
                 assignBitmap(resized);
             }
@@ -192,14 +232,33 @@ public class ProfileOfficialActivity extends AppCompatActivity {
         }
     }
 
+    public void showEditTextsAsMandatory ( EditText... ets )
+    {
+        for ( EditText et : ets )
+        {
+            String hint = et.getHint ().toString ();
+
+            et.setHint ( Html.fromHtml ( "<font color=\"#ff0000\">" + "* " + "</font>" + hint ) );
+        }
+    }
+
     private void assignBitmap(Bitmap resized) {
         switch (buttonId)
         {
-            case R.id.profile_driver_pic : driverImage = resized;setNullText(R.id.choose_driver_image);uDriverImage = true; break;
-            case R.id.profile_driver_voter_id : driverVoterId = resized;setNullText(R.id.choose_voterid);uVoterId = true;break;
-            case R.id.profile_driver_licence : driverLicence = resized;setNullText(R.id.choose_driving_licence);uLicence = true;break;
+            case R.id.profile_driver_voter_id : driverVoterId = resized;
+                setSelectedText(R.id.choose_voterid, "Voter Id Front Selected");uVoterId = true;break;
+            case R.id.profile_driver_licence : driverLicence = resized;
+                setSelectedText(R.id.choose_driving_licence, "Driving License Front Selected");uLicence = true;break;
+            case R.id.profile_voter_back : voterBack = resized;
+                setSelectedText(R.id.choose_voter_back, "Voter Id Back Selected");uBackVoterId = true;break;
+            case R.id.profile_licence_back : licenceBack = resized;
+                setSelectedText(R.id.choose_licence_back, "Driving License Back Selected");uBackLicence = true;break;
             default: showToast("Image fetching failed try again"); break;
         }
+    }
+
+    private void setSelectedText(int id, String s) {
+        getTextView(id).setText(s);
     }
 
     private void checkForPreviousProfile() {
@@ -210,9 +269,10 @@ public class ProfileOfficialActivity extends AppCompatActivity {
                 if(dataSnapshot.hasChild("official"))
                 {
                     isPreviousProfile = true;
-                    uDriverImage = false;
                     uVoterId = false;
                     uLicence = false;
+                    uBackLicence = false;
+                    uBackVoterId = false;
                     populateData(dataSnapshot.child("official").getValue(OfficialProfile.class));
                 }
             }
@@ -256,15 +316,16 @@ public class ProfileOfficialActivity extends AppCompatActivity {
     int numberOfUploads()
     {
         int count = 0;
-        if(uDriverImage) count++;
         if(uVoterId)count++;
         if(uLicence)count++;
+        if(uBackVoterId)count++;
+        if(uBackLicence)count++;
         return count;
     }
 
     void register()
     {
-        showToast("Saving profile");
+        setProgressBar(this,true, "Saving...");
         String licenceNumber = getEditText(R.id.profile_number_driving_licence).getText().toString(),
                 VoterId = getEditText(R.id.profile_number_voter_id).getText().toString();
         OfficialProfile officialProfile = new OfficialProfile(licenceNumber, VoterId);
@@ -272,6 +333,7 @@ public class ProfileOfficialActivity extends AppCompatActivity {
         databaseReference.setValue(officialProfile, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                setProgressBar(ProfileOfficialActivity.this,false, "dummy");
                 if(databaseError!=null){
                     showToast("Error saving database!");
                     return;
@@ -280,9 +342,10 @@ public class ProfileOfficialActivity extends AppCompatActivity {
                 SharedPreferences.Editor editor = getSharedPreferences("com.anekvurna.pingme", MODE_PRIVATE).edit();
                 Intent intent = getIntent();
                 if(!intent.getBooleanExtra(getString(R.string.is_editing), false)) {
-                    editor.putInt("profileStatus", 2);
-                    editor.apply();
-                    loadActivityAndFinish(context, ProfileCarActivity.class);
+                    editor.putInt("profileStatus", 3);
+                    editor.commit();
+                    setProfileStatus(3);
+                    loadActivity(context, ProfileCarActivity.class);
                 }
                 else
                 {
@@ -318,10 +381,17 @@ public class ProfileOfficialActivity extends AppCompatActivity {
         }
     }
 
-
-    void setNullText(int id)
+    void setProfileStatus(int i)
     {
-        getTextView(id).setText("");
+        DatabaseReference profileStatusReference = FirebaseDatabase.getInstance().getReference("users")
+                .child(currentUser.getUid()).child("profileStatus");
+        profileStatusReference.setValue(i);
+    }
+
+
+    void setSelectedText(int id)
+    {
+        getTextView(id).setText(R.string.image_selected);
     }
 
     void setUploadingText(int id)

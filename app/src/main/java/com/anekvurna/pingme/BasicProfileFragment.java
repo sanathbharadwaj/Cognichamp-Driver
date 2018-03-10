@@ -85,14 +85,14 @@ public class BasicProfileFragment extends Fragment {
 
     private void setProfileDetails(BasicProfile basicProfile) {
         getTextView(R.id.view_name).setText(basicProfile.getName());
-        getTextView(R.id.view_line1).setText(basicProfile.getAddressLine1());
+       /* getTextView(R.id.view_line1).setText(basicProfile.getAddressLine1());
         getTextView(R.id.view_line2).setText(basicProfile.getAddressLine2());
-        getTextView(R.id.view_city).setText(basicProfile.getCity());
+        getTextView(R.id.view_city).setText(basicProfile.getCity());*/
 
         String[] states = getResources().getStringArray(R.array.india_states);
-        getTextView(R.id.view_state).setText(states[basicProfile.getState()]);
+       /* getTextView(R.id.view_state).setText(states[basicProfile.getState()]);
 
-        getTextView(R.id.view_pin_code).setText(basicProfile.getPinCode());
+        getTextView(R.id.view_pin_code).setText(basicProfile.getPinCode());*/
         getTextView(R.id.view_mobile).setText(currentUser.getPhoneNumber());
         getTextView(R.id.view_email).setText(basicProfile.getEmail());
         getTextView(R.id.view_alternate).setText(basicProfile.getAlternateNumber());

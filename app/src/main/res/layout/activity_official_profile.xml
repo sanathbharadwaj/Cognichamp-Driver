@@ -11,38 +11,58 @@
         android:layout_height="wrap_content"
         tools:context="com.anekvurna.pingme.ProfileOfficialActivity">
 
-        <Button
-            android:id="@+id/profile_driver_pic"
+        <TextView
+            android:id="@+id/textView8"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:onClick="chooseImage"
-            android:text="@string/driver_image"
+            android:layout_marginStart="8dp"
+            android:text="*"
+            android:textColor="#ff0000"
+            android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/profile_number_voter_id" />
+            app:layout_constraintTop_toTopOf="@+id/profile_driver_licence" />
+
+        <TextView
+            android:id="@+id/textView10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="*"
+            android:textColor="#ff0000"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/profile_voter_back" />
+
+        <TextView
+            android:id="@+id/textView9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="*"
+            android:textColor="#ff0000"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/profile_driver_voter_id" />
 
         <Button
             android:id="@+id/profile_driver_voter_id"
-            android:layout_width="wrap_content"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="32dp"
             android:onClick="chooseImage"
-            android:text="@string/driver_voter_image"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/profile_driver_pic" />
+            android:text="Voter Id-front"
+            app:layout_constraintStart_toEndOf="@+id/textView8"
+            app:layout_constraintTop_toBottomOf="@+id/textView14" />
 
         <Button
             android:id="@+id/profile_driver_licence"
-            android:layout_width="wrap_content"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="32dp"
             android:onClick="chooseImage"
-            android:text="@string/driver_licence_image"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/profile_driver_voter_id" />
+            android:text="Driving License-Front"
+            app:layout_constraintStart_toEndOf="@+id/textView8"
+            app:layout_constraintTop_toBottomOf="@+id/profile_voter_back" />
 
 
         <EditText
@@ -59,20 +79,20 @@
             android:inputType="textPersonName"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/profile_number_driving_licence" />
+            app:layout_constraintTop_toBottomOf="@+id/profile_number_driving_licence"
+            android:layout_marginRight="8dp"
+            android:layout_marginLeft="16dp" />
 
         <Button
             android:id="@+id/button4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:onClick="onSaveOfficial"
-            android:text="@string/save"
+            android:text="Save"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/profile_driver_licence" />
+            app:layout_constraintTop_toBottomOf="@+id/profile_licence_back" />
 
         <EditText
             android:id="@+id/profile_number_driving_licence"
@@ -107,35 +127,73 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="32dp"
-            android:textSize="18sp"
-            app:layout_constraintStart_toEndOf="@+id/profile_driver_licence"
-            app:layout_constraintTop_toBottomOf="@+id/choose_voterid"
-            tools:text="@string/no_image_chosen" />
+            android:text="@string/no_image_chosen"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toTopOf="@+id/profile_driver_licence"
+            app:layout_constraintStart_toStartOf="@+id/profile_driver_licence" />
 
         <TextView
             android:id="@+id/choose_voterid"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="15dp"
             android:layout_marginStart="8dp"
+            android:text="@string/no_image_chosen"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toTopOf="@+id/profile_driver_voter_id"
+            app:layout_constraintStart_toStartOf="@+id/profile_driver_voter_id" />
+
+        <Button
+            android:id="@+id/profile_voter_back"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
-            android:textSize="18sp"
-            app:layout_constraintStart_toEndOf="@+id/profile_driver_voter_id"
-            app:layout_constraintTop_toBottomOf="@+id/choose_driver_image"
-            tools:text="@string/no_image_chosen" />
+            android:onClick="chooseImage"
+            android:text="Voter ID-Back"
+            app:layout_constraintStart_toEndOf="@+id/textView8"
+            app:layout_constraintTop_toBottomOf="@+id/profile_driver_voter_id" />
 
         <TextView
-            android:id="@+id/choose_driver_image"
+            android:id="@+id/choose_voter_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
+            android:layout_marginStart="8dp"
+            android:text="@string/no_image_chosen"
+            app:layout_constraintBottom_toTopOf="@+id/profile_voter_back"
+            app:layout_constraintStart_toStartOf="@+id/profile_voter_back" />
+
+        <Button
+            android:id="@+id/profile_licence_back"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            android:onClick="chooseImage"
+            android:text="Driving License-Back"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/profile_driver_licence" />
+
+        <TextView
+            android:id="@+id/choose_licence_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/no_image_chosen"
+            app:layout_constraintBottom_toTopOf="@+id/profile_licence_back"
+            app:layout_constraintStart_toStartOf="@+id/profile_licence_back" />
+
+        <TextView
+            android:id="@+id/textView14"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:layout_marginTop="16dp"
-            android:textSize="18sp"
-            app:layout_constraintStart_toEndOf="@+id/profile_driver_pic"
-            app:layout_constraintTop_toBottomOf="@+id/profile_number_voter_id"
-            tools:text="@string/no_image_chosen" />
+            android:text="Government IDs"
+            android:textColor="@color/black"
+            android:textSize="24sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/profile_number_voter_id" />
 
-
+        <include layout="@layout/loading_indicator"/>
     </android.support.constraint.ConstraintLayout>
 
 </ScrollView>

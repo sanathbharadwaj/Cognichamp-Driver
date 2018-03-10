@@ -91,6 +91,9 @@ public class CarProfileFragment extends Fragment {
         Glide.with(getContext()).using(new FirebaseImageLoader()).load(storageReference.child("frontImage.jpg"))
                 .signature(new StringSignature(String.valueOf(System.currentTimeMillis())))
                 .into(getImageView(R.id.view_car_front));
+        Glide.with(getContext()).using(new FirebaseImageLoader()).load(storageReference.child(getString(R.string.car_side)))
+                .signature(new StringSignature(String.valueOf(System.currentTimeMillis())))
+                .into(getImageView(R.id.view_car_side));
         Glide.with(getContext()).using(new FirebaseImageLoader()).load(storageReference.child("numberPlate.jpg"))
                 .signature(new StringSignature(String.valueOf(System.currentTimeMillis())))
                 .into(getImageView(R.id.view_number_plate));

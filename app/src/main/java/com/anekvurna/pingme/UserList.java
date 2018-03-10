@@ -6,12 +6,14 @@ package com.anekvurna.pingme;
 
 public class UserList {
     private String username, mobile, elementId, userId;
+    boolean isRegistered;
 
-    public UserList(String username, String mobile, String elementId, String userId) {
+    public UserList(String username, String mobile, String elementId, String userId, Boolean isRegistered) {
         this.username = username;
         this.mobile = mobile;
         this.elementId = elementId;
         this.userId = userId;
+        this.isRegistered = isRegistered;
     }
 
     public UserList()
@@ -32,5 +34,9 @@ public class UserList {
 
     public String getUserId() {
         return userId;
+    }
+
+    public boolean isRegistered() {
+        return isRegistered;
     }
 }

@@ -1,11 +1,8 @@
 package com.anekvurna.pingme;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -17,17 +14,14 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.parse.FindCallback;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.anekvurna.pingme.SanathUtilities.setProgressBar;
+
 public class NotificationsHistoryActivity extends AppCompatActivity {
     private List<String> listTexts;
-    private ListView listView;
     private ArrayAdapter adapter;
     FirebaseAuth auth = FirebaseAuth.getInstance();
     FirebaseUser currentUser = auth.getCurrentUser();
@@ -37,25 +31,17 @@ public class NotificationsHistoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notifications_history);
         setTitle("Notifications history");
-       /* FindCallback first = new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> objects, ParseException e) {
-                parseObjects = objects;
-                initializeListView();
-            }
-        };
-        getNotifications(first);
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("NEW");
-        registerReceiver(broadcastReceiver, intentFilter)*/
-
         initializeListView();
         getNotifications();
     }
 
     void getNotifications()
     {
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("messages").child(currentUser.getUid());
+        Intent intent = getIntent();
+        String date = intent.getStringExtra("date");
+        setProgressBar(this,true, "Fetching Notifications...");
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("messages").child(currentUser.getUid())
+                .child(date);
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -66,11 +52,12 @@ public class NotificationsHistoryActivity extends AppCompatActivity {
                     listTexts.add(message);
                 }
                 adapter.notifyDataSetChanged();
+                setProgressBar(NotificationsHistoryActivity.this,false, "dummy");
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+                showToast(databaseError.getMessage());
             }
         });
         /*ParseQuery query = new ParseQuery("NotificationThree");
@@ -100,7 +87,7 @@ public class NotificationsHistoryActivity extends AppCompatActivity {
 
     void initializeListView()
     {
-        listView = (ListView)findViewById(R.id.notifs_list);
+        ListView listView = findViewById(R.id.notifs_list);
         listTexts = new ArrayList<>();
         listTexts.add("Fetching lists...");
         adapter = new ArrayAdapter<>(getApplicationContext(), R.layout.list_view_layout, listTexts);

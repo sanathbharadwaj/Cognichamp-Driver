@@ -1,7 +1,6 @@
 package com.anekvurna.pingme;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -27,7 +26,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.anekvurna.pingme.SanathUtilities.loadActivityAndFinish;
+import static com.anekvurna.pingme.SanathUtilities.*;
 
 public class LogInActivity extends AppCompatActivity {
 
@@ -39,6 +38,7 @@ public class LogInActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log_in);
         setTitle("Log In");
+        initializeSharedPrefs(this);
     }
 
     public void onLogIn(View view)
@@ -115,11 +115,13 @@ public class LogInActivity extends AppCompatActivity {
                 .getReference("users");
         String phoneNumber = getEditText(R.id.mobile_number).getText().toString();
         String password = getEditText(R.id.login_password).getText().toString();
-        User user1 = new User(phoneNumber, password);
+        User user1 = new User(phoneNumber, password, 0);//TODO:
         databaseReference.child(user.getUid()).setValue(user1, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 showToast("Login successful");
+                editor.putInt(getString(R.string.profile_status), 4);
+                editor.apply();
                 loadActivityAndFinish(context, ViewTabbedActivity.class);
             }
         });
@@ -136,7 +138,7 @@ public class LogInActivity extends AppCompatActivity {
                 {
                     User user1= dataSnapshot.getValue(User.class);
                     if(user1!=null)
-                    if(user1.getPassword().equals(getEditText(R.id.login_password).getText().toString()))
+                    if(user1.getEmail().equals(getEditText(R.id.login_password).getText().toString()))
                     {
                         flag = true;
                     }
@@ -166,12 +168,6 @@ public class LogInActivity extends AppCompatActivity {
         return (EditText)findViewById(id);
     }
 
-    public void loadToProfileActivity()
-    {
-        Intent intent = new Intent(this, ProfileActivity.class);
-        startActivity(intent);
-        finish();
-    }
 
     public void onOrRegister(View view)
     {

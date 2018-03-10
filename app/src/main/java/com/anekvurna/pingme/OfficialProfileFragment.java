@@ -87,12 +87,15 @@ public class OfficialProfileFragment extends Fragment {
         Glide.with(getContext()).using(new FirebaseImageLoader()).load(storageReference.child("driverLicence.jpg"))
                 .signature(new StringSignature(String.valueOf(System.currentTimeMillis())))
                 .into(getImageView(R.id.view_licence_image));
+        Glide.with(getContext()).using(new FirebaseImageLoader()).load(storageReference.child(getString(R.string.back_licence_filename)))
+                .signature(new StringSignature(String.valueOf(System.currentTimeMillis())))
+                .into(getImageView(R.id.view_licence_back_image));
         Glide.with(getContext()).using(new FirebaseImageLoader()).load(storageReference.child("driverVoterId.jpg"))
                 .signature(new StringSignature(String.valueOf(System.currentTimeMillis())))
                 .into(getImageView(R.id.view_voterid_image));
-        Glide.with(getContext()).using(new FirebaseImageLoader()).load(storageReference.child("driverImage.jpg"))
+        Glide.with(getContext()).using(new FirebaseImageLoader()).load(storageReference.child(getString(R.string.back_voter_filename)))
                 .signature(new StringSignature(String.valueOf(System.currentTimeMillis())))
-                .into(getImageView(R.id.view_driver_image));
+                .into(getImageView(R.id.view_voterid_back_image));
 
     }
 

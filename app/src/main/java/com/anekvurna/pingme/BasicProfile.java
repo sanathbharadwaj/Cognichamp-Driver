@@ -6,27 +6,19 @@ package com.anekvurna.pingme;
 
 public class BasicProfile {
     String name;
-    private String addressLine1;
-    private String addressLine2;
-    private String city;
-    private String pinCode;
-    private String email;
     private String alternateNumber;
+    private String email;
     private String landline;
     private String stdCode;
-    private int state;
+    private String mobile;
 
-    public BasicProfile(String name, String addressLine1, String addressLine2, String city, String pinCode, String email, String alternateNumber, String landline, String stdCode, int state) {
+    public BasicProfile(String name,String email, String alternateNumber, String landline, String stdCode) {
         this.name = name;
-        this.addressLine1 = addressLine1;
-        this.addressLine2 = addressLine2;
-        this.city = city;
-        this.pinCode = pinCode;
-        this.email = email;
         this.alternateNumber = alternateNumber;
         this.landline = landline;
         this.stdCode = stdCode;
-        this.state = state;
+        this.email = email;
+
     }
 
 
@@ -35,22 +27,6 @@ public class BasicProfile {
 
     public String getName() {
         return name;
-    }
-
-    public String getAddressLine1() {
-        return addressLine1;
-    }
-
-    public String getAddressLine2() {
-        return addressLine2;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public String getPinCode() {
-        return pinCode;
     }
 
     public String getEmail() {
@@ -65,28 +41,16 @@ public class BasicProfile {
         return landline;
     }
 
-    public int getState() {
-        return state;
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
     }
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public void setAddressLine1(String addressLine1) {
-        this.addressLine1 = addressLine1;
-    }
-
-    public void setAddressLine2(String addressLine2) {
-        this.addressLine2 = addressLine2;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public void setPinCode(String pinCode) {
-        this.pinCode = pinCode;
     }
 
     public void setEmail(String email) {
@@ -109,7 +73,4 @@ public class BasicProfile {
         this.landline = landline;
     }
 
-    public void setState(int state) {
-        this.state = state;
-    }
 }

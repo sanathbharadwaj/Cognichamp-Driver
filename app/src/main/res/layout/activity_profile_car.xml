@@ -12,6 +12,52 @@
         tools:context="com.anekvurna.pingme.ProfileCarActivity">
 
 
+        <TextView
+            android:id="@+id/textView15"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:text="Vehicle Images"
+            android:textColor="@color/black"
+            android:textSize="24sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/profile_vehicle_name" />
+
+        <TextView
+            android:id="@+id/textView11"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="*"
+            android:textColor="#ff0000"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/profile_car_back" />
+
+        <TextView
+            android:id="@+id/textView13"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="*"
+            android:textColor="#ff0000"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/profile_car_plate" />
+
+        <TextView
+            android:id="@+id/textView12"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="*"
+            android:textColor="#ff0000"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/profile_car_front" />
+
         <EditText
             android:id="@+id/profile_vehicle_name"
             android:layout_width="0dp"
@@ -20,7 +66,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:ems="10"
-            android:hint="Vehicle Name"
+            android:hint="Car Model"
             android:inputType="textPersonName"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -47,10 +93,10 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="16dp"
             android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-            android:maxLength="14"
             android:ems="10"
-            android:hint="Vehicle Number"
+            android:hint="Car Number"
             android:inputType="textPersonName"
+            android:maxLength="14"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -62,85 +108,93 @@
             android:layout_height="33dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
-            android:text="@string/vehicle_details"
+            android:text="Car Details"
             android:textColor="@color/black"
             android:textSize="24sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginLeft="16dp" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <Button
             android:id="@+id/profile_car_front"
-            android:layout_width="wrap_content"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="32dp"
             android:onClick="chooseImage"
             android:text="@string/car_image_front"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/profile_vehicle_name"
-            android:layout_marginLeft="16dp" />
+            app:layout_constraintStart_toEndOf="@+id/textView11"
+            app:layout_constraintTop_toBottomOf="@+id/textView15" />
 
         <TextView
             android:id="@+id/choose_number_plate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="32dp"
+            android:text="@string/no_image_chosen"
             android:textSize="14sp"
-            app:layout_constraintStart_toEndOf="@+id/profile_car_plate"
-            app:layout_constraintTop_toBottomOf="@+id/choose_back_image"
-            tools:text="@string/no_image_chosen"
-            android:layout_marginLeft="8dp" />
+            app:layout_constraintBottom_toTopOf="@+id/profile_car_plate"
+            app:layout_constraintStart_toStartOf="@+id/profile_car_plate" />
 
         <Button
             android:id="@+id/profile_car_plate"
-            android:layout_width="wrap_content"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="32dp"
             android:onClick="chooseImage"
             android:text="@string/car_number_plate"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/profile_car_back"
-            android:layout_marginLeft="16dp" />
+            app:layout_constraintStart_toEndOf="@+id/textView13"
+            app:layout_constraintTop_toBottomOf="@+id/profile_car_side" />
 
         <TextView
             android:id="@+id/choose_back_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="32dp"
+            android:text="@string/no_image_chosen"
             android:textSize="14sp"
-            app:layout_constraintStart_toEndOf="@+id/profile_car_back"
-            app:layout_constraintTop_toBottomOf="@+id/choose_front_image"
-            tools:text="@string/no_image_chosen"
-            android:layout_marginLeft="8dp" />
+            app:layout_constraintBottom_toTopOf="@+id/profile_car_back"
+            app:layout_constraintStart_toStartOf="@+id/profile_car_back" />
 
         <Button
             android:id="@+id/profile_car_back"
-            android:layout_width="wrap_content"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="32dp"
             android:onClick="chooseImage"
             android:text="@string/car_image_back"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/profile_car_front"
-            android:layout_marginLeft="16dp" />
+            app:layout_constraintStart_toEndOf="@+id/textView11"
+            app:layout_constraintTop_toBottomOf="@+id/profile_car_front" />
 
         <TextView
             android:id="@+id/choose_front_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginStart="8dp"
+            android:text="@string/no_image_chosen"
             android:textSize="14sp"
-            app:layout_constraintStart_toEndOf="@+id/profile_car_front"
-            app:layout_constraintTop_toBottomOf="@+id/profile_vehicle_name"
-            tools:text="@string/no_image_chosen"
-            android:layout_marginLeft="16dp" />
+            app:layout_constraintBottom_toTopOf="@+id/profile_car_front"
+            app:layout_constraintStart_toStartOf="@+id/profile_car_front" />
 
+        <Button
+            android:id="@+id/profile_car_side"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            android:onClick="chooseImage"
+            android:text="Car Side"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/profile_car_back" />
+
+        <TextView
+            android:id="@+id/choose_car_side"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/no_image_chosen"
+            app:layout_constraintBottom_toTopOf="@+id/profile_car_side"
+            app:layout_constraintStart_toStartOf="@+id/profile_car_side" />
+
+        <include layout="@layout/loading_indicator"/>
 
 
     </android.support.constraint.ConstraintLayout>

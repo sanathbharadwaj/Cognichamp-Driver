@@ -1,22 +1,33 @@
 package com.anekvurna.pingme;
 
+import android.*;
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import static com.anekvurna.pingme.SanathUtilities.*;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -28,11 +39,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.io.File;
 
 public class ProfileCarActivity extends AppCompatActivity {
 
@@ -48,7 +55,10 @@ public class ProfileCarActivity extends AppCompatActivity {
     FirebaseStorage storage = FirebaseStorage.getInstance();
     StorageReference storageRef = storage.getReference();
     private int totalImagesUploaded;
-    boolean uploadBack = true, uploadFront = true, uploadNumberPLate = true, isPreviousProfile = false;
+    boolean uploadBack = true, uploadFront = true, uploadNumberPLate = true, uploadCarSide = false, isPreviousProfile = false;
+    EditText number, name;
+    private Bitmap carSide;
+    private Uri uri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +69,19 @@ public class ProfileCarActivity extends AppCompatActivity {
         currentUser = auth.getCurrentUser();
         databaseReference = FirebaseDatabase.getInstance().getReference("driverProfiles").child(currentUser.getUid()).child("vehicle");
         checkForPreviousProfile();
+        number = getEditText(R.id.profile_vehicle_number);
+        name = getEditText(R.id.profile_vehicle_name);
+        showEditTextsAsMandatory(number, name);
+    }
+
+    public void showEditTextsAsMandatory ( EditText... ets )
+    {
+        for ( EditText et : ets )
+        {
+            String hint = et.getHint ().toString ();
+
+            et.setHint ( Html.fromHtml ( "<font color=\"#ff0000\">" + "* " + "</font>" + hint ) );
+        }
     }
 
     public void onSaveCar(View view)
@@ -74,6 +97,8 @@ public class ProfileCarActivity extends AppCompatActivity {
         uploadImage(R.id.choose_back_image, carBack, "backImage.jpg");
         if(uploadNumberPLate)
         uploadImage(R.id.choose_number_plate, carNumberPlate, "numberPlate.jpg");
+        if(uploadCarSide)
+            uploadImage(R.id.choose_car_side, carSide, getString(R.string.car_side));
         if(numberOfUploads()==0)
             register();
     }
@@ -120,10 +145,14 @@ public class ProfileCarActivity extends AppCompatActivity {
         });
     }
 
+    private void setSelectedText(int id, String s) {
+        getTextView(id).setText(s);
+    }
+
     private void populateData(CarProfile carProfile) {
         getEditText(R.id.profile_vehicle_name).setText(carProfile.getVehicleName());
         getEditText(R.id.profile_vehicle_number).setText(carProfile.getVehicleNumber());
-        uploadBack = false; uploadFront = false; uploadNumberPLate = false;
+        uploadBack = false; uploadFront = false; uploadNumberPLate = false; uploadCarSide = false;
 
     }
 
@@ -133,6 +162,7 @@ public class ProfileCarActivity extends AppCompatActivity {
         if(uploadBack) count++;
         if(uploadFront)count++;
         if(uploadNumberPLate)count++;
+        if(uploadCarSide)count++;
         return count;
     }
 
@@ -164,7 +194,7 @@ public class ProfileCarActivity extends AppCompatActivity {
     }
 
     void register() {
-        showToast("Saving profile");
+        setProgressBar(this,true, "Saving...");
         String vehicleNumber = getEditText(R.id.profile_vehicle_number).getText().toString(),
         vehicleName= getEditText(R.id.profile_vehicle_name).getText().toString();
         CarProfile carProfile = new CarProfile(vehicleName,vehicleNumber);
@@ -172,6 +202,7 @@ public class ProfileCarActivity extends AppCompatActivity {
         databaseReference.setValue(carProfile, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                setProgressBar(ProfileCarActivity.this,false, "dummy");
                 if(databaseError!=null){
                     showToast("Error saving database!");
                     return;
@@ -180,9 +211,12 @@ public class ProfileCarActivity extends AppCompatActivity {
                 SharedPreferences.Editor editor = getSharedPreferences("com.anekvurna.pingme", MODE_PRIVATE).edit();
                 Intent intent = getIntent();
                 if(!intent.getBooleanExtra(getString(R.string.is_editing), false)) {
-                    editor.putInt("profileStatus", 3);
-                    editor.apply();
-                    loadActivityAndFinish(context, ViewTabbedActivity.class);
+                    editor.putInt("profileStatus", 4);
+                    editor.commit();
+                    //sendVerificationEmail();
+                    setProfileStatus(4);
+                    loadActivityAndClearStack(context, ViewTabbedActivity.class);
+                    finish();
                 }
                 else
                     finish();
@@ -203,9 +237,100 @@ public class ProfileCarActivity extends AppCompatActivity {
 
     public void chooseImage(View view) {
         buttonId = view.getId();
-        Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
+        showAlertDialogButtonClicked(view);
     }
+
+    public void showAlertDialogButtonClicked(View view) {
+
+        // setup the alert builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Choose action");
+
+        // add a list
+        String[] actions = {"Gallery", "Camera"};
+        builder.setItems(actions, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case 0: Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE); break;
+                    case 1: clickImageFromCamera(); break;
+                }
+            }
+        });
+
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    public void clickImageFromCamera() {
+
+        if(!isEnabledRuntimePermission())
+            return;
+
+        Intent camIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+
+        File file = new File(Environment.getExternalStorageDirectory(),
+                "file" + String.valueOf(System.currentTimeMillis()) + ".jpg");
+        uri = Uri.fromFile(file);
+
+        camIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, uri);
+
+        camIntent.putExtra("return-data", true);
+
+        startActivityForResult(camIntent, 3);
+
+    }
+
+    boolean isEnabledRuntimePermission()
+    {
+        if(Build.VERSION.SDK_INT >= 23) {
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)
+                    != PackageManager.PERMISSION_GRANTED) {
+                // Permission is not granted
+                ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.CAMERA, android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        2);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    private void sendVerificationEmail()
+    {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        //if(user== null) return;
+        user.sendEmailVerification()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            // email sent
+                            showToast("A verification message has been sent to your email");
+                            // after email is sent just logout the user and finish this activity
+                            FirebaseAuth.getInstance().signOut();
+                            startActivity(new Intent(ProfileCarActivity.this, UserChoiceActivity.class));
+                            finish();
+                        }
+                        else
+                        {
+                            // email not sent, so display message and restart the activity or do whatever you wish to do
+
+                            //restart this activity
+                            overridePendingTransition(0, 0);
+                            finish();
+                            overridePendingTransition(0, 0);
+                            startActivity(getIntent());
+
+                        }
+                    }
+                });
+    }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -216,33 +341,44 @@ public class ProfileCarActivity extends AppCompatActivity {
             return;
         }
         //TODO: Remove asserts
-        if (requestCode == PIC_CROP) {
+        if (requestCode == PIC_CROP && resultCode == RESULT_OK) {
             if (data != null) {
                 // get the returned data
                 Bundle extras = data.getExtras();
                 // get the cropped bitmap
-                assert extras != null;
+                if(extras == null) return;
                 Bitmap selectedBitmap = extras.getParcelable("data");
-                assert selectedBitmap != null;
+                if(selectedBitmap == null)
+                    return;
                 Bitmap resized = Bitmap.createScaledBitmap(selectedBitmap, DESIRED_WIDTH, DESIRED_HEIGHT, true);
                 assignBitmap(resized);
             }
+        }
+
+        if(requestCode == 3)
+        {
+            startCropIntent(uri);
         }
     }
 
     private void assignBitmap(Bitmap resized) {
         switch (buttonId)
         {
-            case R.id.profile_car_front : carFront = resized;setNullText(R.id.choose_front_image);uploadFront = true;break;
-            case R.id.profile_car_back : carBack = resized;setNullText(R.id.choose_back_image);uploadBack = true;break;
-            case R.id.profile_car_plate : carNumberPlate = resized;setNullText(R.id.choose_number_plate);uploadNumberPLate = true;break;
+            case R.id.profile_car_front : carFront = resized;
+                setSelectedText(R.id.choose_front_image, "Car Front Selected");uploadFront = true;break;
+            case R.id.profile_car_back : carBack = resized;
+                setSelectedText(R.id.choose_back_image, "Car Back Selected");uploadBack = true;break;
+            case R.id.profile_car_side : carSide = resized;
+                setSelectedText(R.id.choose_car_side, "Car Side Selected");uploadCarSide = true;break;
+            case R.id.profile_car_plate : carNumberPlate = resized;
+                setSelectedText(R.id.choose_number_plate, "Car Number Plate Selected");uploadNumberPLate = true;break;
             default: showToast("Image fetching failed try again"); break;
         }
     }
 
-    void setNullText(int id)
+    void setSelectedText(int id)
     {
-        getTextView(id).setText("");
+        getTextView(id).setText(R.string.image_selected);
     }
 
     void setUploadingText(int id)
@@ -279,6 +415,13 @@ public class ProfileCarActivity extends AppCompatActivity {
             String errorMessage = "Whoops - your device doesn't support the crop action!";
             showToast(errorMessage);
         }
+    }
+
+    void setProfileStatus(int i)
+    {
+        DatabaseReference profileStatusReference = FirebaseDatabase.getInstance().getReference("users")
+                .child(currentUser.getUid()).child("profileStatus");
+        profileStatusReference.setValue(i);
     }
 
     TextView getTextView(int id)

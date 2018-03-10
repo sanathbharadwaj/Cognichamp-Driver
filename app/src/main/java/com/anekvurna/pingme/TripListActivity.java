@@ -18,8 +18,8 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -43,16 +43,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.parse.FindCallback;
-import com.parse.ParseException;
-import com.parse.ParseInstallation;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AllListsActivity extends AppCompatActivity {
+public class TripListActivity extends DrawerActivity {
 
 
     private List<String> listNames;
@@ -61,27 +56,27 @@ public class AllListsActivity extends AppCompatActivity {
     private List<String> listIds = new ArrayList<>();
     private FirebaseUser currentUser;
     private DatabaseReference databaseReference, locationReference;
-    private LocationManager locationManager;
+    public static LocationManager locationManager;
     private LocationListener locationListener;
     private Location currentLocation;
     private Handler locationSendHandler;
 
-    public AllListsActivity() {
+    public TripListActivity() {
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_all_lists);
+        setContentView(R.layout.activity_trip_list);
         FirebaseAuth auth = FirebaseAuth.getInstance();
         currentUser = auth.getCurrentUser();
         databaseReference = FirebaseDatabase.getInstance().getReference("lists").child(currentUser.getUid());
-        setTitle("All Lists");
+        setTitle("Trip Lists");
         checkForNetConnection();
         initializeLocationObjects();
         initializeListView();
         setListView();
-        //storeInstantiationId();
+        //storeInstallationId();
         SanathUtilities.getFirebaseProfile();
     }
 
@@ -99,14 +94,9 @@ public class AllListsActivity extends AppCompatActivity {
                 listIds.clear();
                 for(DataSnapshot snapshot : dataSnapshot.getChildren())
                 {
-                    String name = null, id;
+                    String name, id;
                     id = snapshot.getKey();
-                    for(DataSnapshot snapshot1 : snapshot.getChildren())
-                    {
-                        name = snapshot1.getKey();
-                    }
-                    if(name==null)
-                        name = snapshot.getValue(String.class);
+                    name = snapshot.child("name").getValue(String.class);
                     if(name !=null && id!=null) {
                         listNames.add(name);
                         listIds.add(id);
@@ -227,7 +217,7 @@ public class AllListsActivity extends AppCompatActivity {
         }
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10, 10, locationListener);
         Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        double latitude = location.getLatitude();
+       // double latitude = location.getLatitude();
     }
 
     private void displayLocationSettingsRequest(Context context) {
@@ -260,7 +250,7 @@ public class AllListsActivity extends AppCompatActivity {
                         try {
                             // Show the dialog by calling startResolutionForResult(), and check the result
                             // in onActivityResult().
-                            status.startResolutionForResult(AllListsActivity.this, 1);
+                            status.startResolutionForResult(TripListActivity.this, 1);
                         } catch (IntentSender.SendIntentException e) {
                             Log.i(TAG, "PendingIntent unable to execute request.");
                         }
@@ -290,38 +280,44 @@ public class AllListsActivity extends AppCompatActivity {
         locationReference.setValue(myLocation);
     }
 
-    private void storeInstantiationId() {
-        final String insId = ParseInstallation.getCurrentInstallation().getInstallationId();
-        ParseQuery<ParseObject> query = new ParseQuery<>("FirebaseUser");
-        query.whereEqualTo("userId", currentUser.getUid());
-        query.setLimit(1);
-        query.findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> objects, ParseException e) {
-                if(e!= null) return;
-                if(objects.size()!=0) {
-                    objects.get(0).put("insId", insId);
-                    objects.get(0).saveEventually();
-                }
-                else {
-                    ParseObject parseObject = new ParseObject("FirebaseUser");
-                    parseObject.put("userId", currentUser.getUid());
-                    parseObject.put("insId", insId);
-                    parseObject.saveEventually();
-                }
-            }
-        });
-
-    }
 
     public void addItem(View view)
     {
-        final EditText editText = findViewById(R.id.new_list_edittext);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.custom_dialog, null);
+        dialogBuilder.setView(dialogView);
+
+        final EditText editText = (EditText) dialogView.findViewById(R.id.list_name_et);
+
+        dialogBuilder.setTitle("List Name");
+        dialogBuilder.setMessage("Enter name below");
+        dialogBuilder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                //do something with edt.getText().toString();
+                if(editText.getText().toString().equals(""))
+                {
+                    showToast("Please fill the name field");
+                    return;
+                }
+                addList(editText);
+            }
+        });
+        dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+
+            }
+        });
+        AlertDialog b = dialogBuilder.create();
+        b.show();
+    }
+
+    private void addList(final EditText editText) {
         final String name = editText.getText().toString();
 
-        String id = databaseReference.child(currentUser.getUid()).push().getKey();
+        String id = databaseReference.push().getKey();
         listIds.add(id);
-        databaseReference.child(id).setValue(name, new DatabaseReference.CompletionListener() {
+        databaseReference.child(id).child("name").setValue(name, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 if(databaseError != null) {showToast(databaseError.getMessage()); return;}

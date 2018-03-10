@@ -1,15 +1,27 @@
 package com.anekvurna.pingme;
 
+import android.Manifest;
+import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.content.res.AppCompatResources;
+import android.text.Html;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -23,17 +35,39 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.anekvurna.pingme.SanathUtilities.fromBitmapToByteArray;
+import static com.anekvurna.pingme.SanathUtilities.loadActivity;
 import static com.anekvurna.pingme.SanathUtilities.loadActivityAndFinish;
+import static com.anekvurna.pingme.SanathUtilities.setProgressBar;
 
 public class ProfileBasicActivity extends AppCompatActivity {
 
     DatabaseReference databaseReference;
     FirebaseAuth auth;
     FirebaseUser currentUser;
+    private EditText name;
+    private EditText email;
+    private EditText alternate;
+    private EditText landline;
+    private EditText stdCode;
+    boolean uDriverImage = true;
+    static final int PICK_IMAGE = 2;
+    final int PIC_CROP = 1;
+    private BasicProfile basicProfile;
+    final int DESIRED_WIDTH = 170, DESIRED_HEIGHT = 170;
+    private int buttonId;
+    Bitmap driverImage;
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+    StorageReference storageRef = storage.getReference();
+    private int totalImagesUploaded;
+    boolean isPreviousProfile = false;
+    private Uri uri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +77,27 @@ public class ProfileBasicActivity extends AppCompatActivity {
         currentUser = auth.getCurrentUser();
         initializeEditTexts();
         checkForPreviousProfile();
+        name = getEditText(R.id.profile_name);
+        email = getEditText(R.id.profile_email);
+        alternate = getEditText(R.id.profile_alternate_mobile);
+        landline = getEditText(R.id.profile_landline);
+        stdCode = getEditText(R.id.profile_std_code);
+        setDrawableLefts();
+        if(currentUser.getDisplayName()!=null)
+        name.setText(currentUser.getDisplayName());
+        email.setText(currentUser.getEmail());
+        showEditTextsAsMandatory(name, email);
+    }
+
+    private void setDrawableLefts() {
+        name.setCompoundDrawablesWithIntrinsicBounds(AppCompatResources
+                .getDrawable(this, R.drawable.ic_account_box_black_24dp), null, null, null);
+        email.setCompoundDrawablesWithIntrinsicBounds(AppCompatResources
+                .getDrawable(this, R.drawable.ic_email_black_24dp), null, null, null);
+        alternate.setCompoundDrawablesWithIntrinsicBounds(AppCompatResources
+                .getDrawable(this, R.drawable.ic_phone_android_black_24dp), null, null, null);
+        stdCode.setCompoundDrawablesWithIntrinsicBounds(AppCompatResources
+                .getDrawable(this, R.drawable.ic_home_black_24dp), null, null, null);
     }
 
     private void initializeEditTexts() {
@@ -56,6 +111,8 @@ public class ProfileBasicActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.hasChild("basic"))
                 {
+                    uDriverImage = false;
+                    isPreviousProfile = true;
                     populateData(dataSnapshot.child("basic").getValue(BasicProfile.class));
                 }
             }
@@ -67,19 +124,22 @@ public class ProfileBasicActivity extends AppCompatActivity {
         });
     }
 
+    public void showEditTextsAsMandatory ( EditText... ets )
+    {
+        for ( EditText et : ets )
+        {
+            String hint = et.getHint ().toString ();
+
+            et.setHint ( Html.fromHtml ( "<font color=\"#ff0000\">" + "* " + "</font>" + hint ) );
+        }
+    }
+
     private void populateData(BasicProfile basicProfile) {
-        String[] states = getResources().getStringArray(R.array.india_states);
-        getEditText(R.id.profile_name).setText(basicProfile.getName());
-        getEditText(R.id.profile_address_line1).setText(basicProfile.getAddressLine1());
-        getEditText(R.id.profile_address_line2).setText(basicProfile.getAddressLine2());
-        getEditText(R.id.profile_address_city).setText(basicProfile.getCity());
-        Spinner spinner = findViewById(R.id.profile_state);
-        spinner.setSelection(basicProfile.getState());
-        getEditText(R.id.profile_address_pinCode).setText(basicProfile.getPinCode());
-        getEditText(R.id.profile_email).setText(basicProfile.getEmail());
-        getEditText(R.id.profile_alternate_mobile).setText(basicProfile.getAlternateNumber());
-        getEditText(R.id.profile_std_code).setText(basicProfile.getStdCode());
-        getEditText(R.id.profile_landline).setText(basicProfile.getLandline());
+        name.setText(basicProfile.getName());
+        email.setText(basicProfile.getEmail());
+        alternate.setText(basicProfile.getAlternateNumber());
+        stdCode.setText(basicProfile.getStdCode());
+        landline.setText(basicProfile.getLandline());
 
         StorageReference storageReference = FirebaseStorage.getInstance().getReference("driverProfiles")
                 .child(currentUser.getUid());
@@ -91,23 +151,29 @@ public class ProfileBasicActivity extends AppCompatActivity {
     {
         if(!isValid()) return;
         final Context context = this;
-        Spinner spinner = findViewById(R.id.profile_state);
-        BasicProfile basicProfile = new BasicProfile();
-        basicProfile.setName(getEditText(R.id.profile_name).getText().toString());
-        basicProfile.setAddressLine1(getEditText(R.id.profile_address_line1).getText().toString());
-        basicProfile.setAddressLine2(getEditText(R.id.profile_address_line2).getText().toString());
-        basicProfile.setCity(getEditText(R.id.profile_address_city).getText().toString());
-        basicProfile.setState(spinner.getSelectedItemPosition());
-        basicProfile.setPinCode(getEditText(R.id.profile_address_pinCode).getText().toString());
-        basicProfile.setEmail(getEditText(R.id.profile_email).getText().toString());
-        basicProfile.setAlternateNumber(getEditText(R.id.profile_alternate_mobile).getText().toString());
-        basicProfile.setLandline(getEditText(R.id.profile_landline).getText().toString());
-        basicProfile.setStdCode(getEditText(R.id.profile_std_code).getText().toString());
+        basicProfile = new BasicProfile();
+        basicProfile.setName(name.getText().toString());
+        basicProfile.setEmail(email.getText().toString());
+        basicProfile.setAlternateNumber(alternate.getText().toString());
+        basicProfile.setLandline(landline.getText().toString());
+        basicProfile.setStdCode(stdCode.getText().toString());
+        basicProfile.setMobile(currentUser.getPhoneNumber());
 
+        if(uDriverImage)
+            uploadImage(R.id.choose_driver_image, driverImage, "driverImage.jpg");
+
+        if(numberOfUploads() == 0)
+            register();
+    }
+
+    void register()
+    {
+        setProgressBar(this,true, "Saving...");
         databaseReference = FirebaseDatabase.getInstance().getReference("driverProfiles").child(currentUser.getUid()).child("basic");
         databaseReference.setValue(basicProfile, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                setProgressBar(ProfileBasicActivity.this,false, "dummy");
                 if(databaseError!=null){
                     showToast("Error saving data!");
                     showToast(databaseError.getMessage());
@@ -118,8 +184,9 @@ public class ProfileBasicActivity extends AppCompatActivity {
                 Intent intent  = getIntent();
                 if(!intent.getBooleanExtra(getString(R.string.is_editing), false)) {
                     editor.putInt("profileStatus", 1);
-                    editor.apply();
-                    loadActivityAndFinish(context, ProfileOfficialActivity.class);
+                    editor.commit();
+                    setProfileStatus(1);
+                    loadActivity(ProfileBasicActivity.this, ProfileAddressActivity.class);
                 }
                 else
                 {
@@ -129,44 +196,137 @@ public class ProfileBasicActivity extends AppCompatActivity {
         });
     }
 
+    void setProfileStatus(int i)
+    {
+        DatabaseReference profileStatusReference = FirebaseDatabase.getInstance().getReference("users")
+                .child(currentUser.getUid()).child("profileStatus");
+        profileStatusReference.setValue(i);
+    }
+
+    public void showAlertDialogButtonClicked(View view) {
+
+        // setup the alert builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Choose action");
+
+        // add a list
+        String[] animals = {"Gallery", "Camera"};
+        builder.setItems(animals, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case 0: Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE); break;
+                    case 1: clickImageFromCamera(); break;
+                }
+            }
+        });
+
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    public void clickImageFromCamera() {
+
+        if(!isEnabledRuntimePermission())
+            return;
+
+        Intent camIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+
+        File file = new File(Environment.getExternalStorageDirectory(),
+                "file" + String.valueOf(System.currentTimeMillis()) + ".jpg");
+        uri = Uri.fromFile(file);
+
+        camIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, uri);
+
+        camIntent.putExtra("return-data", true);
+
+        startActivityForResult(camIntent, 3);
+
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PICK_IMAGE && resultCode == RESULT_OK && data != null) {
+
+            Uri pickedImage = data.getData();
+            startCropIntent(pickedImage);
+            return;
+        }
+        //TODO: Remove asserts
+        if (requestCode == PIC_CROP && resultCode == RESULT_OK) {
+            if (data != null) {
+                // get the returned data
+                Bundle extras = data.getExtras();
+                // get the cropped bitmap
+                if(extras == null) return;
+                Bitmap selectedBitmap = extras.getParcelable("data");
+                if(selectedBitmap == null)
+                    return;
+                Bitmap resized = Bitmap.createScaledBitmap(selectedBitmap, DESIRED_WIDTH, DESIRED_HEIGHT, true);
+                assignBitmap(resized);
+            }
+        }
+
+        if(requestCode == 3)
+        {
+            startCropIntent(uri);
+        }
+    }
+    private void assignBitmap(Bitmap resized) {
+        switch (buttonId)
+        {
+            case R.id.profile_driver_pic : driverImage = resized;
+                setSelectedText(R.id.choose_driver_image);uDriverImage = true; break;
+            default: showToast("Image fetching failed try again"); break;
+        }
+    }
+
+    public void chooseImage(View view) {
+        buttonId = view.getId();
+        showAlertDialogButtonClicked(view);
+    }
+
+    private void uploadImage(final int textId, Bitmap imageBitmap, String name) {
+        setUploadingText(textId);
+        byte[] data = fromBitmapToByteArray(imageBitmap);
+        storageRef = FirebaseStorage.getInstance().getReference().child("driverProfiles").child(currentUser.getUid())
+                .child(name);
+        UploadTask uploadTask = storageRef.putBytes(data);
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                showToast(e.getMessage());
+            }
+        });
+
+        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                setUploadedText(textId);
+                totalImagesUploaded++;
+                if(totalImagesUploaded == numberOfUploads())
+                    register();
+            }
+        });
+    }
+
+    int numberOfUploads()
+    {
+        int count = 0;
+        if(uDriverImage) count++;
+        return count;
+    }
+
     boolean isValid()
     {
-        final int MOBILE_LIMIT = 10;
+        final int MOBILE_LIMIT = 10, LANDLINE_LIMIT = 11;
         boolean valid = true;
         if(getEditText(R.id.profile_name).getText().toString().equals(""))
         {
             showToast("Please enter valid name");
-            valid = false;
-        }
-        if(getEditText(R.id.profile_address_line1).getText().toString().equals("") )
-        {
-            showToast("Please enter valid address line 1");
-            valid = false;
-        }
-
-        if(getEditText(R.id.profile_address_line2).getText().toString().equals("") )
-        {
-            showToast("Please enter valid address line 2");
-            valid = false;
-        }
-
-        if(getEditText(R.id.profile_address_city).getText().toString().equals("") )
-        {
-            showToast("Please enter valid address city");
-            valid = false;
-        }
-
-        Spinner spinner = findViewById(R.id.profile_state);
-        if(spinner.getSelectedItemPosition() == -1 )
-        {
-            showToast("Please select a state");
-            valid = false;
-        }
-
-        String pinCode = getEditText(R.id.profile_address_pinCode).getText().toString();
-        if( pinCode.equals("")|| pinCode.length() < 6)
-        {
-            showToast("Please enter valid pin code");
             valid = false;
         }
 
@@ -177,7 +337,7 @@ public class ProfileBasicActivity extends AppCompatActivity {
             valid = false;
         }
         String alternateMobile = getEditText(R.id.profile_alternate_mobile).getText().toString();
-        if(alternateMobile.equals("") || alternateMobile.length() != MOBILE_LIMIT )
+        if(!alternateMobile.equals("") && alternateMobile.length() != MOBILE_LIMIT )
         {
             showToast("Please enter valid alternate mobile");
             valid = false;
@@ -185,9 +345,16 @@ public class ProfileBasicActivity extends AppCompatActivity {
         String stdCode, landline;
         stdCode = getEditText(R.id.profile_std_code).getText().toString();
         landline = getEditText(R.id.profile_landline).getText().toString();
-        if(stdCode.equals("") || landline.equals("") || stdCode.length() + landline.length() != MOBILE_LIMIT)
+        int length = stdCode.length() + landline.length();
+        if((stdCode.equals("") || landline.equals("") || length != LANDLINE_LIMIT) && length != 0)
         {
             showToast("Please enter valid landline");
+            valid = false;
+        }
+
+        if(driverImage == null && !isPreviousProfile)
+        {
+            showToast("Please choose driver image");
             valid = false;
         }
 
@@ -210,6 +377,71 @@ public class ProfileBasicActivity extends AppCompatActivity {
         pattern = Pattern.compile(EMAIL_PATTERN);
         matcher = pattern.matcher(email);
         return matcher.matches();
+    }
+
+    void startCropIntent(Uri picUri)
+    {
+        try {
+            Intent cropIntent = new Intent("com.android.camera.action.CROP");
+            // indicate image type and Uri
+            cropIntent.setDataAndType(picUri, "image/*");
+            // set crop properties here
+            cropIntent.putExtra("crop", true);
+            // indicate aspect of desired crop
+            cropIntent.putExtra("aspectX", 1);
+            cropIntent.putExtra("aspectY", 1);
+            // indicate output X and Y
+            cropIntent.putExtra("outputX", 128);
+            cropIntent.putExtra("outputY", 128);
+            // retrieve data on return
+            cropIntent.putExtra("return-data", true);
+            // start the activity - we handle returning in onActivityResult
+            startActivityForResult(cropIntent, PIC_CROP);
+        }
+        catch (ActivityNotFoundException notFound) {
+
+            String errorMessage = "Whoops - your device doesn't support the crop action!";
+            showToast(errorMessage);
+        }
+    }
+
+    boolean isEnabledRuntimePermission()
+    {
+        if(Build.VERSION.SDK_INT >= 23) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                    != PackageManager.PERMISSION_GRANTED) {
+                // Permission is not granted
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        2);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+
+
+    void setSelectedText(int id)
+    {
+        getTextView(id).setText(R.string.image_selected);
+    }
+
+    void setUploadingText(int id)
+    {
+        getTextView(id).setText(R.string.uploading);
+    }
+
+    void setUploadedText(int id)
+    {
+        getTextView(id).setText(R.string.uploaded);
+    }
+
+    TextView getTextView(int id)
+    {
+        return (TextView)findViewById(id);
     }
 
 }

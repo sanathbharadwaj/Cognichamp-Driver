@@ -9,7 +9,7 @@
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         tools:context="com.anekvurna.pingme.ProfileBasicActivity">
 
         <EditText
@@ -27,79 +27,20 @@
             app:layout_constraintTop_toBottomOf="@+id/textView4" />
 
         <EditText
-            android:id="@+id/profile_address_line1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:ems="10"
-            android:hint="Address Line 1"
-            android:inputType="textPostalAddress"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView5" />
-
-        <EditText
-            android:id="@+id/profile_address_pinCode"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:ems="10"
-            android:maxLength="6"
-            android:hint="Pin Code"
-            android:inputType="number"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/profile_state" />
-
-        <EditText
-            android:id="@+id/profile_address_city"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:ems="10"
-            android:hint="City"
-            android:inputType="text"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/profile_address_line2" />
-
-        <EditText
-            android:id="@+id/profile_address_line2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:ems="10"
-            android:hint="Address Line 2"
-            android:inputType="textPostalAddress"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/profile_address_line1" />
-
-        <EditText
             android:id="@+id/profile_email"
             android:layout_width="0dp"
             android:layout_height="43dp"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:ems="10"
-            android:hint="@string/email_hint"
+            android:hint="Contact Email"
             android:inputType="textEmailAddress"
+            android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/profile_address_pinCode" />
+            app:layout_constraintTop_toBottomOf="@+id/profile_name" />
 
         <EditText
             android:id="@+id/profile_alternate_mobile"
@@ -123,6 +64,7 @@
             android:layout_marginEnd="8dp"
             android:layout_marginTop="8dp"
             android:ems="10"
+            android:maxLength="8"
             android:hint="@string/landline_hint"
             android:inputType="number"
             app:layout_constraintEnd_toEndOf="parent"
@@ -134,13 +76,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="124dp"
             android:onClick="onSaveBasic"
-            android:text="@string/save"
+            android:text="Save"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/profile_std_code" />
+            app:layout_constraintTop_toBottomOf="@+id/profile_landline" />
 
         <EditText
             android:id="@+id/profile_std_code"
@@ -150,6 +90,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:ems="10"
+            android:maxLength="5"
             android:hint="@string/std_code"
             android:inputType="number"
             app:layout_constraintEnd_toStartOf="@+id/profile_landline"
@@ -169,31 +110,38 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <Spinner
-            android:id="@+id/profile_state"
-            android:layout_width="0dp"
+        <Button
+            android:id="@+id/profile_driver_pic"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
+            android:layout_marginTop="32dp"
+            android:onClick="chooseImage"
+            android:text="Driver image"
+            android:visibility="visible"
+            app:layout_constraintStart_toEndOf="@+id/textView5"
+            app:layout_constraintTop_toBottomOf="@+id/profile_std_code" />
+
+        <TextView
+            android:id="@+id/choose_driver_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:entries="@array/india_states"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/profile_address_city" />
+            android:text="@string/no_image_chosen"
+            app:layout_constraintBottom_toTopOf="@+id/profile_driver_pic"
+            app:layout_constraintStart_toStartOf="@+id/profile_driver_pic" />
 
         <TextView
             android:id="@+id/textView5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
-            android:text="TextView"
-            android:textColor="@color/black"
+            android:text="*"
+            android:textColor="#ff0000"
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/profile_name"
-            tools:text="@string/address_hint" />
+            app:layout_constraintTop_toTopOf="@+id/profile_driver_pic" />
+
+        <include layout="@layout/loading_indicator"/>
 
 
     </android.support.constraint.ConstraintLayout>

@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<android.support.v4.widget.DrawerLayout android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_layout">
     <android.support.constraint.ConstraintLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.anekvurna.pingme.AllListsActivity">
+        tools:context="com.anekvurna.pingme.TripListActivity">
 
         <TextView
             android:id="@+id/first_list"
@@ -27,11 +31,10 @@
             android:id="@+id/my_lists"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginBottom="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            app:layout_constraintBottom_toTopOf="@+id/new_list_edittext"
+            app:layout_constraintBottom_toTopOf="@+id/add_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -46,18 +49,31 @@
             android:ems="10"
             android:hint="@string/new_list"
             android:inputType="textPersonName"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/add_button"
             app:layout_constraintStart_toStartOf="parent" />
 
         <Button
             android:id="@+id/add_button"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:background="@color/colorAccent"
             android:onClick="addItem"
-            android:text="@string/add"
+            android:text="Add New"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
     </android.support.constraint.ConstraintLayout>
-
+    <android.support.design.widget.NavigationView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        app:menu="@menu/navigation_menu"
+        android:id="@+id/nav_view"
+        android:layout_gravity = "start"
+        app:headerLayout="@layout/navigation_header">
+    </android.support.design.widget.NavigationView>
+</android.support.v4.widget.DrawerLayout>

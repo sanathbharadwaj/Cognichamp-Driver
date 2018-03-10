@@ -1,7 +1,10 @@
 <resources>
-    <string name="app_name">PingMe</string>
+    <string name="app_name">CogniChamp Driver</string>
+    <string name="facebook_app_id">334720800365423</string>
+    <string name="fb_login_protocol_scheme">fb334720800365423</string>
+
     <string name="enter_mobile_number">mobile</string>
-    <string name="password_hint">password</string>
+    <string name="password_hint">email</string>
     <string name="register">Register</string>
     <string name="login">LogIn</string>
     <string name="name_hint">Name</string>
@@ -23,17 +26,17 @@
     <string name="cancel">Cancel</string>
     <string name="ping_history">Ping History</string>
     <string name="profile">Profile</string>
-    <string name="vehicle_details">Vehicle Details</string>
-    <string name="driving_licence">Driving Licence Number</string>
+    <string name="car_details">Car Details</string>
+    <string name="driving_licence">Driving License Number</string>
     <string name="voter_id">Voter ID Number</string>
     <string name="personal_details">Personal Details</string>
-    <string name="driver_image">Select Driver Image</string>
+    <string name="driver_image">Driver Image</string>
     <string name="no_image_chosen">No Image Chosen</string>
-    <string name="car_image_front">Select Car Front Photograph</string>
-    <string name="car_image_back">Select Car Back Photograph</string>
-    <string name="car_number_plate">Select Number Plate Image</string>
-    <string name="driver_voter_image">Select Voter ID Image</string>
-    <string name="driver_licence_image">Select Driving Licence Image</string>
+    <string name="car_image_front">Car Front</string>
+    <string name="car_image_back">Car Back</string>
+    <string name="car_number_plate">Number Plate</string>
+    <string name="driver_voter_image">Voter ID Image</string>
+    <string name="driver_licence_image">Driving License Image</string>
     <string name="uploading">Uploading&#8230;</string>
     <string name="uploaded">Uploaded</string>
     <string name="open">Open</string>
@@ -101,4 +104,19 @@
     <string name="list_id">listId</string>
     <string name="list_name">listName</string>
     <string name="end_trip">End Trip</string>
+    <string name="title_activity_profile_address">ProfileAddressActivity</string>
+    <string name="image_selected">Image Selected</string>
+    <string name="back_voter_filename">backVoterId.jpg</string>
+    <string name="back_licence_filename">backLicence.jpg</string>
+    <string name="driving_licence_back_image">Driving License Back Image</string>
+    <string name="car_side">carSide.jpg</string>
+    <string name="profile_status">profileStatus</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="list_name_space">List Name</string>
+    <string name="city_village">City/Village</string>
+    <string name="car">Car</string>
+    <string name="local_trip_running">localTripRunning</string>
+    <string name="local_users_json">localUsersJSON</string>
+    <string name="change_list_name">Change list name</string>
+    <string name="delete_list">Delete list</string>
 </resources>

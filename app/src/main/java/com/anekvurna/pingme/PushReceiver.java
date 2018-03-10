@@ -14,13 +14,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParsePushBroadcastReceiver;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
-import com.parse.SaveCallback;
-
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
@@ -33,26 +26,25 @@ import static android.content.Context.NOTIFICATION_SERVICE;
  * Created by Admin on 1/7/2018.
  */
 
-public class PushReceiver extends ParsePushBroadcastReceiver {
+public class PushReceiver  {
     private static int notificationId = 0;
 
 
     Context context;
 
-    @Override
     protected void onPushReceive(Context mContext, Intent intent) {
         context = mContext;
         try {
             JSONObject json = new JSONObject(intent.getExtras().getString("com.parse.Data"));
             final String title = json.getString("title");
-            final String sender = json.getString("alert");
+            final String message = json.getString("alert");
             //ParseObject object = new ParseObject("NotificationThree");
            // object.put("sender", sender);
            // object.put("receiver", ParseUser.getCurrentUser().getString("nameOfUser"));
             //String receiver = ParseUser.getCurrentUser().getString("nameOfUser");
-            Date date = new Date();
+          /*  Date date = new Date();
             SimpleDateFormat format = new SimpleDateFormat("hh:mm:ss 'on' MM/dd/yyyy", Locale.getDefault());
-            final String message = sender + " messaged you at " + format.format(date);
+            final String message = sender + " messaged you at " + format.format(date);*/
             /*object.put("message",message);
             object.put("date", date);
             object.pinInBackground(new SaveCallback() {
@@ -63,7 +55,7 @@ public class PushReceiver extends ParsePushBroadcastReceiver {
                 }
             });*/
             notifyUser(title, message);
-            addToMessageHistory(message);
+            //addToMessageHistory(message);
 
 
         }

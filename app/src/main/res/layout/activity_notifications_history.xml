@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--<android.support.v4.widget.DrawerLayout android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_layout">-->
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -18,4 +23,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <include layout="@layout/loading_indicator"/>
 </android.support.constraint.ConstraintLayout>
+  <!--  <android.support.design.widget.NavigationView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        app:menu="@menu/navigation_menu"
+        android:id="@+id/nav_view"
+        android:layout_gravity = "start"
+        app:headerLayout="@layout/navigation_header">
+    </android.support.design.widget.NavigationView>
+</android.support.v4.widget.DrawerLayout>-->
+

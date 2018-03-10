@@ -6,22 +6,31 @@ package com.anekvurna.pingme;
 
 public class User {
 
-    private String mobile, password;
+    private String mobile, email;
+    int profileStatus;
 
     public User()
     {}
 
-    public User(String mobile, String password) {
+    public User(String mobile, String email, int profileStatus) {
         this.mobile = mobile;
-        this.password = password;
+        this.email = email;
+        this.profileStatus = profileStatus;
     }
 
+    public int getProfileStatus() {
+        return profileStatus;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
+    }
 
     public String getMobile() {
         return mobile;
     }
 
-    public String getPassword() {
-        return password;
+    public String getEmail() {
+        return email;
     }
 }

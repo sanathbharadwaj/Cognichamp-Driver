@@ -33,35 +33,24 @@ public class RegistrationActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private String vid;
+    private String mPhoneNumber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
         mAuth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null)
-            takeToProfilesActivity();
+        //FirebaseUser currentUser = mAuth.getCurrentUser();
     }
 
-    private void takeToProfilesActivity() {
-        SharedPreferences prefs = getSharedPreferences("com.anekvurna.pingme", MODE_PRIVATE);
-        int profileStatus = prefs.getInt("profileStatus", 0);
-        switch (profileStatus)
-        {
-            case 0 : loadActivityAndFinish(this, ProfileBasicActivity.class);break;
-            case 1 : loadActivityAndFinish(this, ProfileOfficialActivity.class);break;
-            case 2 : loadActivityAndFinish(this, ProfileCarActivity.class);break;
-            default: loadActivityAndFinish(this, ViewTabbedActivity.class);break;
-        }
-    }
+
 
 
     public void onRegister(View view)
     {
-        String phoneNumber = getEditText(R.id.mobile_number).getText().toString();
+        mPhoneNumber = getEditText(R.id.mobile_number).getText().toString();
         showToast("Automatically detecting SMS sent to your mobile");
-        phoneAuthenticate("+91" + phoneNumber);
+        phoneAuthenticate("+91" + mPhoneNumber);
     }
 
 
@@ -88,14 +77,13 @@ public class RegistrationActivity extends AppCompatActivity {
     private void saveUser(FirebaseUser user) {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance()
                 .getReference("users");
-        String phoneNumber = getEditText(R.id.mobile_number).getText().toString();
+        String phoneNumber = mPhoneNumber;
         String password = getEditText(R.id.password).getText().toString();
-        User user1 = new User(phoneNumber, password);
+        User user1 = new User(phoneNumber, password, 0);
         databaseReference.child(user.getUid()).setValue(user1, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 showToast("Registration successful");
-
                 loadToProfileActivity();
             }
         });
@@ -113,8 +101,13 @@ public class RegistrationActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                if(dataSnapshot.hasChild(currentUser.getUid()))
                {
-                   showToast("User already exists");
-                   FirebaseAuth.getInstance().signOut();
+                  /* showToast("User already exists");
+                   FirebaseAuth.getInstance().signOut();*/
+                   showToast("Login successful");
+                   initializeSharedPrefs(RegistrationActivity.this);
+                   editor.putInt("profileStatus", 4);
+                   editor.apply();
+                   loadActivityAndFinish(RegistrationActivity.this, ViewTabbedActivity.class);
                }
                else
                    saveUser(user);

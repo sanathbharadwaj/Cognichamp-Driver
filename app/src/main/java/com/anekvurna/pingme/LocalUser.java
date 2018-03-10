@@ -1,6 +1,7 @@
 package com.anekvurna.pingme;
 
 import android.graphics.Bitmap;
+import android.location.Location;
 
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -11,19 +12,31 @@ import com.google.firebase.storage.StorageReference;
 
 public class LocalUser {
     private String name, mobile, userId, elementId;
-    StorageReference storageReference;
+    private boolean isRegistered;
+    private MyLocation myLocation;
+    private int state;
 
 
-    public LocalUser(String name, String mobile, String userId, String elementId,  StorageReference storageReference) {
+    public LocalUser(String name, String mobile, String userId, String elementId, boolean isRegistered) {
         this.name = name;
         this.mobile = mobile;
         this.userId = userId;
-        this.storageReference = storageReference;
         this.elementId = elementId;
+        this.isRegistered = isRegistered;
+        state = 0;
     }
 
     public LocalUser()
     {
+
+    }
+
+    public MyLocation getMyLocation() {
+        return myLocation;
+    }
+
+    public void setMyLocation(MyLocation myLocation) {
+        this.myLocation = myLocation;
     }
 
     public String getName() {
@@ -38,11 +51,19 @@ public class LocalUser {
         return userId;
     }
 
-    public StorageReference getStorageReference() {
-        return storageReference;
-    }
-
     public String getElementId() {
         return elementId;
+    }
+
+    public boolean isRegistered() {
+        return isRegistered;
+    }
+
+    public int getState() {
+        return state;
+    }
+
+    public void setState(int state) {
+        this.state = state;
     }
 }

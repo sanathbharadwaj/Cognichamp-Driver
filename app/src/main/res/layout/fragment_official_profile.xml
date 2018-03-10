@@ -1,4 +1,6 @@
-<ScrollView android:layout_width="match_parent"
+<ScrollView xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android">
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -11,6 +13,24 @@
     tools:layout_editor_absoluteY="81dp">
 
     <!-- TODO: Update blank fragment layout -->
+
+    <ImageView
+        android:id="@+id/view_licence_back_image"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginStart="8dp"
+        android:src="@mipmap/ic_launcher"
+        app:layout_constraintStart_toEndOf="@+id/view_licence_image"
+        app:layout_constraintTop_toTopOf="@+id/view_licence_image" />
+
+    <ImageView
+        android:id="@+id/view_voterid_back_image"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginStart="8dp"
+        android:src="@mipmap/ic_launcher"
+        app:layout_constraintStart_toEndOf="@+id/view_voterid_image"
+        app:layout_constraintTop_toTopOf="@+id/view_voterid_image" />
 
     <TextView
         android:id="@+id/view_licence"
@@ -38,7 +58,7 @@
         android:layout_height="100dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:src="@drawable/ic_call_black_24dp"
+        android:src="@mipmap/ic_launcher"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/heading_licence" />
 
@@ -58,7 +78,8 @@
         android:layout_height="100dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:src="@android:drawable/btn_dialog"
+        android:src="@mipmap/ic_launcher"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/heading_driver_image" />
 
@@ -69,7 +90,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginTop="8dp"
         android:onClick="onEditOfficial"
-        android:src="@drawable/ic_edit_black_24dp"
+        app:srcCompat="@drawable/ic_edit_black_24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -91,9 +112,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
-        android:text="Licence Number"
+        android:text="License Number"
         android:textAlignment="center"
-        android:textAllCaps="true"
+        android:textAllCaps="false"
         android:textColor="@color/black"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -132,8 +153,11 @@
         android:text="Driver Image"
         android:textColor="@color/black"
         android:textSize="18sp"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view_voterid" />
+
+    <include layout="@layout/loading_indicator"/>
 </android.support.constraint.ConstraintLayout>
 </ScrollView>
 

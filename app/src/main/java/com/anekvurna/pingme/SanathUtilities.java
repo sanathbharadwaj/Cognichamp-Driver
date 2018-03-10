@@ -7,7 +7,9 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -20,6 +22,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Stack;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -29,7 +32,7 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class SanathUtilities {
 
-    public static Profile currentProfile;
+    public static BasicProfile currentProfile;
     public static FirebaseUser currentUser;
     public static SharedPreferences.Editor editor;
     public static SharedPreferences preferences;
@@ -55,8 +58,8 @@ public class SanathUtilities {
     public static void loadActivity(Context context , Class myClass )
     {
         Intent intent = new Intent(context, myClass);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-        context.startActivity(intent);
+        Activity activity = (Activity) context;
+        activity.startActivity(intent);
     }
 
     public static void loadActivityAndFinish(Context context , Class myClass )
@@ -67,16 +70,25 @@ public class SanathUtilities {
         activity.finish();
     }
 
+    public static void loadActivityAndClearStack(Context context , Class myClass )
+    {
+        Intent intent = new Intent(context, myClass);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        context.startActivity(intent);
+    }
+
+
     public static void getFirebaseProfile()
     {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = auth.getCurrentUser();
         if(currentUser==null) return;
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("profiles").child(currentUser.getUid());
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("driverProfiles").child(currentUser.getUid())
+                .child("basic");
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                currentProfile = dataSnapshot.getValue(Profile.class);
+                currentProfile = dataSnapshot.getValue(BasicProfile.class);
             }
 
             @Override
@@ -103,6 +115,19 @@ public class SanathUtilities {
    {
        return BitmapFactory.decodeByteArray(data, 0, data.length);
    }
+
+    public static void setProgressBar(Activity activity , boolean status, String loadingText)
+    {
+        View view  = activity.findViewById(R.id.progressBarHolder);
+        if(status) {
+            view.setVisibility(View.VISIBLE);
+            view.bringToFront();
+            TextView textView = activity.findViewById(R.id.loading_text);
+            textView.setText(loadingText);
+        }
+        else
+            view.setVisibility(View.GONE);
+    }
 
    /*public static EditText getEditText(Context context, int id)
    {
