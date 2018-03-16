@@ -5,11 +5,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fillViewport="true">
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:context="com.anekvurna.pingme.ProfileCarActivity">
+        tools:context="com.anekvurna.cognichampdriver.ProfileCarActivity">
 
 
         <TextView
@@ -20,7 +21,7 @@
             android:layout_marginTop="16dp"
             android:text="Vehicle Images"
             android:textColor="@color/black"
-            android:textSize="24sp"
+            android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/profile_vehicle_name" />
 
@@ -110,7 +111,7 @@
             android:layout_marginTop="8dp"
             android:text="Car Details"
             android:textColor="@color/black"
-            android:textSize="24sp"
+            android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 

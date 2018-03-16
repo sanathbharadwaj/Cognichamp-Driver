@@ -9,7 +9,7 @@
 <android.support.constraint.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context="com.anekvurna.pingme.ProfileActivity">
+    tools:context="com.anekvurna.cognichampdriver.ProfileActivity">
 
     <EditText
         android:id="@+id/profile_name"

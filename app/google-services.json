@@ -8,17 +8,61 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:166216835986:android:6e8ec9f6d7c20aad",
+        "mobilesdk_app_id": "1:166216835986:android:40c6a26a08a61b0c",
         "android_client_info": {
-          "package_name": "com.anekvurna.pingme"
+          "package_name": "com.anekvurna.userapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "166216835986-ne4joe7n9fghe8k50lb3val9nvpir0ui.apps.googleusercontent.com",
+          "client_id": "166216835986-h4huhf4m70o94niigctoblod1ekfjvid.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.anekvurna.pingme",
+            "package_name": "com.anekvurna.userapp",
+            "certificate_hash": "66a5c11c0f8588cc99230728d0cd6d8f9ad607a2"
+          }
+        },
+        {
+          "client_id": "166216835986-9umtr6eojhc4sm2tnq5j9pglclv1dfiq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDn5mJK-o_yElCQ7wlfiDcECB7-xwL6bts"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "166216835986-9umtr6eojhc4sm2tnq5j9pglclv1dfiq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:166216835986:android:5b327e599d5bee63",
+        "android_client_info": {
+          "package_name": "com.anekvurna.cognichampdriver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "166216835986-jkchans9ceftgb32s7be62k3o6anuooh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.anekvurna.cognichampdriver",
             "certificate_hash": "66a5c11c0f8588cc99230728d0cd6d8f9ad607a2"
           }
         },

@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context="com.anekvurna.pingme.MobileVerificationActivity">
+    android:id="@+id/mobile_verification_layout"
+    tools:context="com.anekvurna.cognichampdriver.MobileVerificationActivity">
 
     <EditText
         android:id="@+id/mobile_number"

@@ -5,7 +5,7 @@ android {
     }
     compileSdkVersion 27
     defaultConfig {
-        applicationId "com.anekvurna.pingme"
+        applicationId "com.anekvurna.cognichampdriver"
         minSdkVersion 15
         targetSdkVersion 27
         versionCode 1

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.anekvurna.pingme">
+    package="com.anekvurna.cognichampdriver">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -15,21 +15,6 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <uses-feature android:name="android.hardware.camera" />
-    <!--
-    GET_ACCOUNTS is only required for GCM on devices running Android lower than
-    4.0.4. You may leave out this permission if you are targetting 4.0.4+.
-    -->
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-
-    <!--
-    IMPORTANT: Change "com.parse.starter.permission.C2D_MESSAGE" in the lines below
-    to match your app's package name + ".permission.C2D_MESSAGE".
-    -->
-    <permission
-        android:name="com.anekvurna.pingme.permission.C2D_MESSAGE"
-        android:protectionLevel="signature" />
-
-    <uses-permission android:name="com.anekvurna.pingme.permission.C2D_MESSAGE" />
 
     <application
         android:name=".PingMe"
@@ -39,10 +24,22 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
+
         <activity android:name=".RegistrationActivity" />
         <activity android:name=".ProfileActivity" />
         <activity android:name=".LogInActivity" />
-        <activity android:name=".TripListActivity" />
+        <activity
+            android:name=".TripListActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".UserListActivity" />
 
         <meta-data
@@ -66,7 +63,8 @@
             </intent-filter>
         </activity>
 
-       <!-- <service android:name="com.parse.PushService" />
+        <!--
+        <service android:name="com.parse.PushService" />
 
         <receiver
             android:name=".PushReceiver"
@@ -85,14 +83,16 @@
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
 
                 &lt;!&ndash; IMPORTANT: Change "com.parse.starter" to match your app's package name. &ndash;&gt;
-                <category android:name="com.anekvurna.pingme" />
+                <category android:name="com.anekvurna.cognichampdriver" />
             </intent-filter>
         </receiver>
 
         &lt;!&ndash; IMPORTANT: Change "YOUR_SENDER_ID" to your GCM Sender Id. &ndash;&gt;
         <meta-data
             android:name="com.parse.push.gcm_sender_id"
-            android:value="id:166216835986" />-->
+            android:value="id:166216835986" />
+        -->
+        <receiver android:name=".NetworkStateReceiver" />
 
         <activity android:name=".NotificationsHistoryActivity" />
         <activity android:name=".ViewProfileActivity" />
@@ -113,13 +113,16 @@
         <activity android:name=".ProfileAddressActivity" />
         <activity android:name=".DrawerActivity" />
         <activity android:name=".ResetPasswordActivity" />
-        <activity android:name=".HistoryDatesActivity" />
+        <activity
+            android:name=".HistoryDatesActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".MobileVerificationActivity" />
         <activity android:name=".EmailRegistrationActivity" />
         <activity android:name=".EmailLogInActivity" />
         <activity android:name=".SplashScreenActivity" />
         <activity android:name=".ManualVerificationActivity" />
         <activity android:name=".ForgotPasswordActivity" />
+        <activity android:name=".ProfileParentActivity"></activity>
     </application>
 
 </manifest>

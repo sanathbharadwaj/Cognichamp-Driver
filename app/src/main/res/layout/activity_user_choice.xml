@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context="com.anekvurna.pingme.UserChoiceActivity">
+    tools:context="com.anekvurna.cognichampdriver.UserChoiceActivity">
 
     <Button
         android:id="@+id/register_button"

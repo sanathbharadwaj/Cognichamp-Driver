@@ -9,7 +9,7 @@
     android:id="@+id/ConstraintLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context="com.anekvurna.pingme.CarProfileFragment">
+    tools:context="com.anekvurna.cognichampdriver.CarProfileFragment">
 
     <!-- TODO: Update blank fragment layout -->
 

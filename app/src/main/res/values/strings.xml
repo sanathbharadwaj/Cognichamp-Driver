@@ -96,7 +96,7 @@
     <string name="basic">basic</string>
     <string name="other">other</string>
     <string name="vehicle">vehicle</string>
-    <string name="all_lists">All Lists</string>
+    <string name="all_lists">Trip Lists</string>
     <string name="is_editing">isEditing</string>
     <string name="add_user">Add User</string>
     <string name="start_trip">Start Trip</string>
@@ -119,4 +119,5 @@
     <string name="local_users_json">localUsersJSON</string>
     <string name="change_list_name">Change list name</string>
     <string name="delete_list">Delete list</string>
+    <string name="empty_dash">-----</string>
 </resources>
